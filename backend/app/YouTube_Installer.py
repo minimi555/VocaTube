@@ -2,7 +2,7 @@ from typing import List
 import yt_dlp
 import os
 
-OUTPUT_DIR = "/home/xjc/Files/program/VocaTube/video"
+OUTPUT_DIR = "/root/assets/video"
 
 def Download_Video(download_list: List):
     """
