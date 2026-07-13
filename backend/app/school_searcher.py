@@ -4,6 +4,7 @@ from langchain_tavily import TavilySearch
 from langchain_core.tools import tool
 from typing import TypedDict, List
 from datetime import date
+from backend.QS import QS_150_list
 #import signal
 
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ def get_current_date() -> str:
     return f"{today.year}年{today.month}月{today.day}日"
 
 from langchain_tavily import TavilySearch
-QS_200_list : List[str] = ["cuhk.edu.hk"]
+QS_list : List[str] = QS_150_list
 tavily_search = TavilySearch(
     max_results=5,
     topic="general",
@@ -29,7 +30,7 @@ tavily_search = TavilySearch(
     # time_range="day",
     # start_date=None,
     # end_date=None,
-    include_domains=QS_200_list #"www.chinaielts.org", "toefl.neea.cn", "www.ets.org"
+    include_domains=QS_list #"www.chinaielts.org", "toefl.neea.cn", "www.ets.org"
     # exclude_domains=None,
     # include_usage= False
 )
@@ -37,7 +38,7 @@ tavily_search = TavilySearch(
 agent = create_agent(
     model=ChatDeepSeek(model="deepseek-v4-flash", timeout=None),
     tools=[tavily_search, get_current_date],
-    system_prompt="你是一个针对QS前200的学校的web检索助手，你可以根据用户的提问，检索相关学校的官方网站内容，并提供准确的回答。请确保你的回答基于可靠的来源，并尽量引用官方网站的信息并附上具体网址。注意信息来源时间和用户提问时间，确保信息的时效性。若用户指明自己的意向专业，请搜索各个学校的官方网站，提供该该学校专业对英语要求的详细信息，并附上具体网址。"
+    system_prompt="你是一个针对QS前150的学校的web检索助手，你可以根据用户的提问，检索相关学校的官方网站内容，并提供准确的回答。请确保你的回答基于可靠的来源，并尽量引用官方网站的信息并附上具体网址。注意信息来源时间和用户提问时间，确保信息的时效性。若用户指明自己的意向专业，请搜索各个学校的官方网站，提供该该学校专业对英语要求的详细信息，并附上具体网址。"
 )
 print("Agent initialized and ready to use.")
 # Use the agent
