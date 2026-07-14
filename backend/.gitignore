@@ -2,5 +2,7 @@
 .venv/
 # .env
 .env
+
 #chache
 app/__pycache__
+app/video_url/__pycache__

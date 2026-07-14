@@ -1,27 +1,59 @@
 from typing import List
 import yt_dlp
 import os
+from video_url.url_2 import url_2
+from video_url.url_2 import sub_path
 
-OUTPUT_VIDEO_DIR = "/root/assets/video"
-OUTPUT_zh_DIR = "/root/assets/subs/zh"
-OUTPUT_en_DIR = "/root/assets/subs/en"
+OUTPUT_VIDEO_DIR = f"/opt/assets/video/{sub_path}"
+OUTPUT_zh_DIR = f"/opt/assets/subs/zh/{sub_path}"
+OUTPUT_en_DIR = f"/opt/assets/subs/en/{sub_path}"
 
 
-def _download_subtitles(url: str, output_dir: str, languages: List[str]) -> None:
-    """为单个 URL 下载指定语言的字幕。"""
+def _download_subtitles(url: str, output_dir: str, languages: List[str]) -> bool:
+    """按优先级逐个尝试下载字幕，下载到第一个即停止。
+    languages 列表顺序即优先级，如 ['zh', 'zh-Hans', 'zh-Hant', 'zh-TW']。
+    返回 True 表示成功下载了字幕文件，False 表示所有语言都未找到。
+    """
     os.makedirs(output_dir, exist_ok=True)
+    outtmpl = os.path.join(output_dir, '%(title)s.%(ext)s')
+
+    # 先获取视频信息，查看可用字幕列表
+    with yt_dlp.YoutubeDL({'skip_download': True, 'quiet': True}) as ydl:
+        info = ydl.extract_info(url, download=False)
+
+    title = info.get('title', '')
+    available_subs = info.get('subtitles', {})
+    available_auto = info.get('automatic_captions', {})
+
+    # 按优先级找第一个可用的语言
+    target_lang = None
+    for lang in languages:
+        if lang in available_subs or lang in available_auto:
+            target_lang = lang
+            break
+
+    if not target_lang:
+        return False
+
     subtitle_opts = {
         'skip_download': True,
         'writesubtitles': True,
-        'subtitleslangs': languages,
+        'writeautomaticsub': True,
+        'subtitleslangs': [target_lang],
         'subtitlesformat': 'srt',
-        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+        'outtmpl': outtmpl,
         'quiet': False,
         'no_warnings': False,
     }
 
     with yt_dlp.YoutubeDL(subtitle_opts) as ydl:
         ydl.extract_info(url, download=True)
+
+    # 验证文件是否真正写入
+    for f in os.listdir(output_dir):
+        if f.endswith('.srt') and title in f:
+            return True
+    return False
 
 
 def Download_Video(download_list: List):
@@ -62,15 +94,19 @@ def Download_Video(download_list: List):
                 continue
 
             try:
-                _download_subtitles(url, OUTPUT_zh_DIR, ['zh'])
-                print(f"✓ 中文字幕下载成功: {url}")
+                if _download_subtitles(url, OUTPUT_zh_DIR, ['zh', 'zh-Hans', 'zh-Hant', 'zh-TW']):
+                    print(f"✓ 中文字幕下载成功: {url}")
+                else:
+                    print(f"⚠ 未找到中文字幕: {url}")
             except Exception as e:
                 print(f"⚠ 中文字幕下载失败: {url}")
                 print(f"  错误: {str(e)}")
 
             try:
-                _download_subtitles(url, OUTPUT_en_DIR, ['en-US'])
-                print(f"✓ 英文字幕下载成功: {url}")
+                if _download_subtitles(url, OUTPUT_en_DIR, ['en', 'en-US']):
+                    print(f"✓ 英文字幕下载成功: {url}")
+                else:
+                    print(f"⚠ 未找到英文字幕: {url}")
             except Exception as e:
                 print(f"⚠ 英文字幕下载失败: {url}")
                 print(f"  错误: {str(e)}")
@@ -85,9 +121,7 @@ def Download_Video(download_list: List):
 
 if __name__ == '__main__':
     # 测试下载功能
-    test_urls = [
-        "https://www.youtube.com/watch?v=aAy-B6KPld8",  # 示例视频 URL
-    ]
+    test_urls = url_2  # 示例视频 URL
     try:
         Download_Video(test_urls)
     except Exception as e:
