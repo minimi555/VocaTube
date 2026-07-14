@@ -1,8 +1,8 @@
 from typing import List
 import yt_dlp
 import os
-from video_url.url_2 import url_2
-from video_url.url_2 import sub_path
+from video_url.url_1 import url_1
+from video_url.url_1 import sub_path
 
 OUTPUT_VIDEO_DIR = f"/opt/assets/video/{sub_path}"
 OUTPUT_zh_DIR = f"/opt/assets/subs/zh/{sub_path}"
@@ -121,7 +121,7 @@ def Download_Video(download_list: List):
 
 if __name__ == '__main__':
     # 测试下载功能
-    test_urls = url_2  # 示例视频 URL
+    test_urls = url_1  # 示例视频 URL
     try:
         Download_Video(test_urls)
     except Exception as e:

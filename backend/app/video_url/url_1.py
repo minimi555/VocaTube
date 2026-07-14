@@ -2,9 +2,14 @@ from typing import List
 
 sub_path : str = "1";
 
-url_1 : List[str] = ["https://www.youtube.com/watch?v=0rHUDWjR5gg",
-                    "https://www.youtube.com/watch?v=L-Wtlev6suc",
-                    "https://www.youtube.com/watch?v=01QWC-rZcfE",
-                    "https://www.youtube.com/watch?v=AQ5vty8f9Xc",
-                    "https://www.youtube.com/watch?v=PRgua7xceDA"
+url_1 : List[str] = ["https://www.youtube.com/watch?v=Iy7NzjCmUf0",
+                      "https://www.youtube.com/watch?v=5q8v7b3Y6jE",
+                      "https://www.youtube.com/watch?v=dqONk48l5vY",
+                      "https://www.youtube.com/watch?v=UwVNkfCov1k",
+                      "https://www.youtube.com/watch?v=yiw6_JakZFc",
+                      "https://www.youtube.com/watch?v=3lPnN8omdPA",
+                      "https://www.youtube.com/watch?v=40riCqvRoMs",
+                      "https://www.youtube.com/watch?v=aircAruvnKk",
+                      "https://www.youtube.com/watch?v=xD1ElRT-Sb0",
+                      "https://www.youtube.com/watch?v=zBkVCpbNnkU"
                     ]
