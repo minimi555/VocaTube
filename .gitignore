@@ -1,5 +1,3 @@
-*.txt
 *.md
-
-
-frontend/
+!README.md
+!CLAUDE.md
