@@ -4,11 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-VocaTube downloads YouTube videos and subtitles, then builds a vocabulary/learning database from the subtitle content. It's a Python backend (no frontend yet) split into a downloader pipeline (`YouTube_Installer.py`), an unrelated school-search LangChain agent (`school_searcher.py`), and SQL schema notes for two logically separate databases (`vediobase.md`, `wordbase.md`).
+VocaTube downloads YouTube videos and subtitles, then builds a vocabulary/learning database from the subtitle content. It's a Python backend (no frontend yet,which will be complete in Android Studio) split into a downloader pipeline (`YouTube_Installer.py`), an unrelated school-search LangChain agent (`school_searcher.py`), and SQL schema notes for two logically separate databases (`vediobase.md`, `wordbase.md`).
 
 ## Setup and commands
 
-Dependency management uses `uv` (see `pyproject.toml`, requires Python >=3.12). `backend/requirements.txt` is a separate, more complete pinned dependency list (installed into `backend/.venv`) — check which one is actually in use before adding packages, as they've drifted apart (e.g. `langchain`, `fastapi`, `PyMySQL` appear only in `requirements.txt`).
+Dependency management uses `pip` (see `backend/requirements.txt`, requires Python >=3.12).
 
 There is no test suite, lint config, or build step in the repo currently.
 
