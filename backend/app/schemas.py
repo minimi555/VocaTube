@@ -51,3 +51,18 @@ class VideoDetail(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SourceItem(BaseModel):
+    source: Optional[str]
+    section: Optional[str]
+
+
+class AskRequest(BaseModel):
+    question: str
+    k: int = 4
+
+
+class AskResponse(BaseModel):
+    answer: str
+    sources: List[SourceItem]

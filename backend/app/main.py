@@ -6,7 +6,11 @@ from typing import List
 
 from database import get_wordbase_db, get_videobase_db
 from models import Word, Translation, Category, WordCategory, Video
-from schemas import WordDetail, WordCategoryCheck, VideoTitle, VideoDetail, TranslationItem, PhraseItem, SentenceItem
+from schemas import (
+    WordDetail, WordCategoryCheck, VideoTitle, VideoDetail,
+    TranslationItem, PhraseItem, SentenceItem, AskRequest, AskResponse,
+)
+import RAG
 
 app = FastAPI(title="VocaTube API")
 
@@ -94,3 +98,16 @@ def get_video_detail(video_id: int, db: Session = Depends(get_videobase_db)):
         subtitle_zh_url=subtitle_zh_url,
         subtitle_en_url=subtitle_en_url
     )
+
+
+@app.post("/ask", response_model=AskResponse)
+def ask(req: AskRequest):
+    """RAG over the english_learning_md docs (CET4/CET6/SAT/kaoyan)."""
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="question is empty")
+    try:
+        result = RAG.answer(req.question, k=req.k)
+    except RuntimeError as e:
+        # vector store not built yet -> tell the caller to run `python RAG.py ingest`
+        raise HTTPException(status_code=503, detail=str(e))
+    return result
