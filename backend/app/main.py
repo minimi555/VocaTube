@@ -1,16 +1,18 @@
 import json
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from typing import List
 
 from database import get_wordbase_db, get_videobase_db
-from models import Word, Translation, Category, WordCategory, Video
+from models import Word, Translation, Category, WordCategory, Video, School, SchoolSearchHistory
 from schemas import (
     WordDetail, WordCategoryCheck, VideoTitle, VideoDetail,
     TranslationItem, PhraseItem, SentenceItem, AskRequest, AskResponse,
+    SchoolItem, SchoolSearchRequest, SchoolSearchResponse, SchoolSearchHistoryItem,
 )
 import RAG
+import school_searcher
 
 app = FastAPI(title="VocaTube API")
 
@@ -111,3 +113,46 @@ def ask(req: AskRequest):
         # vector store not built yet -> tell the caller to run `python RAG.py ingest`
         raise HTTPException(status_code=503, detail=str(e))
     return result
+
+
+# --------------------------------------------------------------------------- #
+# School search endpoints                                                      #
+# --------------------------------------------------------------------------- #
+
+@app.get("/schools", response_model=List[SchoolItem])
+def list_schools(db: Session = Depends(get_wordbase_db)):
+    """List all QS top-150 schools, ordered by rank."""
+    return db.query(School).order_by(School.qs_rank, School.name).all()
+
+
+@app.post("/school/search", response_model=SchoolSearchResponse)
+def school_search(req: SchoolSearchRequest, db: Session = Depends(get_wordbase_db)):
+    """Search QS top-150 school websites for English requirements etc."""
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="question is empty")
+    try:
+        result = school_searcher.search_school(req.question)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"School search agent error: {e}")
+
+    # persist to history
+    record = SchoolSearchHistory(question=req.question, answer=result["answer"])
+    db.add(record)
+    db.commit()
+
+    return SchoolSearchResponse(answer=result["answer"])
+
+
+@app.get("/school/history", response_model=List[SchoolSearchHistoryItem])
+def school_search_history(
+    limit: int = Query(default=20, ge=1, le=100),
+    db: Session = Depends(get_wordbase_db),
+):
+    """Return recent school search history, newest first."""
+    rows = (
+        db.query(SchoolSearchHistory)
+        .order_by(SchoolSearchHistory.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return rows

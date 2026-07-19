@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, SmallInteger
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, SmallInteger, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from database import WordbaseBase, VideobaseBase
 
 
@@ -49,3 +50,21 @@ class WordCategory(WordbaseBase):
 
     word_id = Column(Integer, ForeignKey("words.id", ondelete="CASCADE"), primary_key=True)
     category_id = Column(Integer, ForeignKey("categories.id", ondelete="CASCADE"), primary_key=True)
+
+
+class School(WordbaseBase):
+    __tablename__ = "schools"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(255), nullable=False)
+    domain = Column(String(255), nullable=False, unique=True)
+    qs_rank = Column(SmallInteger, nullable=False)
+
+
+class SchoolSearchHistory(WordbaseBase):
+    __tablename__ = "school_search_history"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    question = Column(Text, nullable=False)
+    answer = Column(Text, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())

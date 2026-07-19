@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from datetime import datetime
 
 
 class TranslationItem(BaseModel):
@@ -66,3 +67,33 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     sources: List[SourceItem]
+
+
+# ---- School search schemas ------------------------------------------------ #
+
+class SchoolItem(BaseModel):
+    id: int
+    name: str
+    domain: str
+    qs_rank: int
+
+    class Config:
+        from_attributes = True
+
+
+class SchoolSearchRequest(BaseModel):
+    question: str
+
+
+class SchoolSearchResponse(BaseModel):
+    answer: str
+
+
+class SchoolSearchHistoryItem(BaseModel):
+    id: int
+    question: str
+    answer: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

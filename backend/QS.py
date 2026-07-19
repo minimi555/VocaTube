@@ -1,155 +1,160 @@
-from typing import List
+from typing import List, Dict
 
-QS_150_list : List[str] = [
-    "mit.edu",                          # 1 Massachusetts Institute of Technology (MIT)
-    "imperial.ac.uk",                   # 2 Imperial College London
-    "stanford.edu",                     # 2 Stanford University
-    "ox.ac.uk",                         # 4 University of Oxford
-    "harvard.edu",                      # 5 Harvard University
-    "cam.ac.uk",                        # 6 University of Cambridge
-    "caltech.edu",                      # 7 California Institute of Technology (Caltech)
-    "ethz.ch",                          # 8 ETH Zurich
-    "ucl.ac.uk",                        # 8 UCL
-    "nus.edu.sg",                       # 10 National University of Singapore (NUS)
-    "hku.hk",                           # 11 The University of Hong Kong
-    "ntu.edu.sg",                       # 12 Nanyang Technological University, Singapore (NTU Singapore)
-    "pku.edu.cn",                       # 13 Peking University
-    "tsinghua.edu.cn",                  # 14 Tsinghua University
-    "upenn.edu",                        # 15 University of Pennsylvania
-    "cornell.edu",                      # 16 Cornell University
-    "yale.edu",                         # 16 Yale University
-    "cuhk.edu.hk",                      # 18 The Chinese University of Hong Kong (CUHK)
-    "unsw.edu.au",                      # 19 The University of New South Wales (UNSW Sydney)
-    "jhu.edu",                          # 20 Johns Hopkins University
-    "berkeley.edu",                     # 20 University of California, Berkeley (UCB)
-    "epfl.ch",                          # 22 EPFL - Ecole polytechnique federale de Lausanne
-    "unimelb.edu.au",                   # 22 The University of Melbourne
-    "uchicago.edu",                     # 24 University of Chicago
-    "tum.de",                           # 25 Technical University of Munich
-    "fudan.edu.cn",                     # 26 Fudan University
-    "princeton.edu",                    # 27 Princeton University
-    "sydney.edu.au",                    # 28 The University of Sydney
-    "anu.edu.au",                       # 29 Australian National University (ANU)
-    "mcgill.ca",                        # 30 McGill University
-    "monash.edu",                       # 31 Monash University
-    "utoronto.ca",                      # 32 University of Toronto
-    "hkust.edu.hk",                     # 33 The Hong Kong University of Science and Technology
-    "psl.eu",                           # 34 Universite PSL
-    "ed.ac.uk",                         # 35 The University of Edinburgh
-    "sjtu.edu.cn",                      # 36 Shanghai Jiao Tong University
-    "kcl.ac.uk",                        # 37 King's College London
-    "snu.ac.kr",                        # 38 Seoul National University
-    "u-tokyo.ac.jp",                    # 39 The University of Tokyo
-    "manchester.ac.uk",                 # 40 The University of Manchester
-    "uq.edu.au",                        # 40 The University of Queensland
-    "yonsei.ac.kr",                     # 42 Yonsei University
-    "columbia.edu",                     # 43 Columbia University
-    "ip-paris.fr",                      # 43 Institut Polytechnique de Paris
-    "northwestern.edu",                 # 45 Northwestern University
-    "ubc.ca",                           # 45 University of British Columbia
-    "zju.edu.cn",                       # 47 Zhejiang University
-    "tudelft.nl",                       # 48 Delft University of Technology
-    "ucla.edu",                         # 49 University of California, Los Angeles (UCLA)
-    "polyu.edu.hk",                     # 50 The Hong Kong Polytechnic University
-    "umich.edu",                        # 51 University of Michigan-Ann Arbor
-    "cityu.edu.hk",                     # 52 City University of Hong Kong (CityUHK)
-    "korea.ac.kr",                      # 52 Korea University
-    "ntu.edu.tw",                       # 54 National Taiwan University (NTU)
-    "cmu.edu",                          # 55 Carnegie Mellon University
-    "um.edu.my",                        # 56 Universiti Malaya (UM)
-    "bristol.ac.uk",                    # 57 University of Bristol
-    "nyu.edu",                          # 58 New York University (NYU)
-    "kuleuven.be",                      # 59 KU Leuven
-    "uva.nl",                           # 60 University of Amsterdam
-    "lmu.de",                           # 61 Ludwig-Maximilians-Universitaet Muenchen
-    "lse.ac.uk",                        # 62 The London School of Economics and Political Science (LSE)
-    "kfupm.edu.sa",                     # 63 KFUPM
-    "kyoto-u.ac.jp",                    # 64 Kyoto University
-    "kaist.ac.kr",                      # 65 KAIST
-    "brown.edu",                        # 66 Brown University
-    "auckland.ac.nz",                   # 67 The University of Auckland
-    "warwick.ac.uk",                    # 68 The University of Warwick
-    "birmingham.ac.uk",                 # 68 University of Birmingham
-    "duke.edu",                         # 70 Duke University
-    "lu.se",                            # 71 Lund University
-    "utexas.edu",                       # 72 University of Texas at Austin
-    "sorbonne-universite.fr",           # 73 Sorbonne University
-    "illinois.edu",                     # 74 University of Illinois Urbana-Champaign
-    "tcd.ie",                           # 75 Trinity College Dublin, The University of Dublin
-    "universite-paris-saclay.fr",       # 76 Universite Paris-Saclay
-    "uwa.edu.au",                       # 77 The University of Western Australia
-    "leeds.ac.uk",                      # 77 University of Leeds
-    "adelaide.edu.au",                  # 79 Adelaide University
-    "gla.ac.uk",                        # 80 University of Glasgow
-    "ucsd.edu",                         # 81 University of California, San Diego (UCSD)
-    "kth.se",                           # 82 KTH Royal Institute of Technology
-    "sheffield.ac.uk",                  # 82 The University of Sheffield
-    "uba.ar",                           # 84 Universidad de Buenos Aires (UBA)
-    "durham.ac.uk",                     # 85 Durham University
-    "uni-heidelberg.de",                # 86 Universitaet Heidelberg
-    "polimi.it",                        # 87 Politecnico di Milano
-    "uts.edu.au",                       # 87 University of Technology Sydney
-    "uu.se",                            # 87 Uppsala University
-    "nju.edu.cn",                       # 90 Nanjing University
-    "ku.dk",                            # 90 University of Copenhagen
-    "psu.edu",                          # 92 Pennsylvania State University
-    "washington.edu",                   # 92 University of Washington
-    "bu.edu",                           # 94 Boston University
-    "osaka-u.ac.jp",                    # 95 The University of Osaka
-    "ualberta.ca",                      # 96 University of Alberta
-    "isct.ac.jp",                       # 97 Institute of Science Tokyo
-    "nottingham.ac.uk",                 # 97 University of Nottingham
-    "fu-berlin.de",                     # 98 Freie Universitaet Berlin
-    "uzh.ch",                           # 98 University of Zurich
-    "purdue.edu",                       # 100 Purdue University
-    "ucd.ie",                           # 100 University College Dublin
-    "tohoku.ac.jp",                     # 102 Tohoku University
-    "qmul.ac.uk",                       # 103 Queen Mary University of London
-    "rwth-aachen.de",                   # 104 RWTH Aachen University
-    "dtu.dk",                           # 105 Technical University of Denmark
-    "postech.ac.kr",                    # 106 Pohang University of Science And Technology (POSTECH)
-    "ksu.edu.sa",                       # 107 King Saud University
-    "skku.edu",                         # 108 Sungkyunkwan University (SKKU)
-    "qu.edu.qa",                        # 109 Qatar University
-    "kit.edu",                          # 110 KIT, Karlsruhe Institute of Technology
-    "uniroma1.it",                      # 111 Sapienza University of Rome
-    "southampton.ac.uk",                # 111 University of Southampton
-    "uwaterloo.ca",                     # 113 University of Waterloo
-    "uu.nl",                            # 113 Utrecht University
-    "msu.ru",                           # 115 Lomonosov Moscow State University
-    "st-andrews.ac.uk",                 # 115 University of St Andrews
-    "iitd.ac.in",                       # 118 Indian Institute of Technology Delhi (IITD)
-    "leidenuniv.nl",                    # 119 Leiden University
-    "uc.cl",                            # 119 Pontificia Universidad Catolica de Chile (UC)
-    "rmit.edu.au",                      # 119 RMIT University
-    "rice.edu",                         # 122 Rice University
-    "unibo.it",                         # 123 Alma Mater Studiorum - Universita di Bologna
-    "helsinki.fi",                      # 123 University of Helsinki
-    "bath.ac.uk",                       # 125 University of Bath
-    "aalto.fi",                         # 126 Aalto University
-    "mq.edu.au",                        # 126 Macquarie University (Sydney, Australia)
-    "au.dk",                            # 128 Aarhus University
-    "usm.my",                           # 128 Universiti Sains Malaysia (USM)
-    "ukm.edu.my",                       # 130 Universiti Kebangsaan Malaysia (UKM)
-    "uio.no",                           # 131 University of Oslo
-    "wisc.edu",                         # 131 University of Wisconsin-Madison
-    "usp.br",                           # 133 Universidade de Sao Paulo
-    "iitb.ac.in",                       # 134 Indian Institute of Technology Bombay (IITB)
-    "ustc.edu.cn",                      # 134 University of Science and Technology of China
-    "exeter.ac.uk",                     # 136 University of Exeter
-    "ucdavis.edu",                      # 137 University of California, Davis
-    "upm.edu.my",                       # 138 Universiti Putra Malaysia (UPM)
-    "liverpool.ac.uk",                  # 139 University of Liverpool
-    "hu-berlin.de",                     # 140 Humboldt-Universitaet zu Berlin
-    "univie.ac.at",                     # 140 University of Vienna
-    "gatech.edu",                       # 142 Georgia Institute of Technology
-    "nthu.edu.tw",                      # 142 National Tsing Hua University - NTHU
-    "uwo.ca",                           # 142 Western University
-    "unam.mx",                          # 145 Universidad Nacional Autonoma de Mexico (UNAM)
-    "tongji.edu.cn",                    # 146 Tongji University
-    "ku.ac.ae",                         # 147 Khalifa University
-    "eur.nl",                           # 148 Erasmus University Rotterdam
-    "ncl.ac.uk",                        # 149 Newcastle University
-    "ugent.be",                         # 150 Ghent University
-    "unibas.ch",                        # 150 University of Basel
+# Structured data: rank, full name, domain for each QS top-150 university.
+# Some ranks are shared (ties), resulting in 152 entries.
+QS_150_schools: List[Dict] = [
+    {"rank": 1,   "name": "Massachusetts Institute of Technology (MIT)",                    "domain": "mit.edu"},
+    {"rank": 2,   "name": "Imperial College London",                                       "domain": "imperial.ac.uk"},
+    {"rank": 2,   "name": "Stanford University",                                           "domain": "stanford.edu"},
+    {"rank": 4,   "name": "University of Oxford",                                          "domain": "ox.ac.uk"},
+    {"rank": 5,   "name": "Harvard University",                                            "domain": "harvard.edu"},
+    {"rank": 6,   "name": "University of Cambridge",                                       "domain": "cam.ac.uk"},
+    {"rank": 7,   "name": "California Institute of Technology (Caltech)",                   "domain": "caltech.edu"},
+    {"rank": 8,   "name": "ETH Zurich",                                                    "domain": "ethz.ch"},
+    {"rank": 8,   "name": "UCL",                                                           "domain": "ucl.ac.uk"},
+    {"rank": 10,  "name": "National University of Singapore (NUS)",                         "domain": "nus.edu.sg"},
+    {"rank": 11,  "name": "The University of Hong Kong",                                   "domain": "hku.hk"},
+    {"rank": 12,  "name": "Nanyang Technological University, Singapore (NTU Singapore)",    "domain": "ntu.edu.sg"},
+    {"rank": 13,  "name": "Peking University",                                             "domain": "pku.edu.cn"},
+    {"rank": 14,  "name": "Tsinghua University",                                           "domain": "tsinghua.edu.cn"},
+    {"rank": 15,  "name": "University of Pennsylvania",                                    "domain": "upenn.edu"},
+    {"rank": 16,  "name": "Cornell University",                                            "domain": "cornell.edu"},
+    {"rank": 16,  "name": "Yale University",                                               "domain": "yale.edu"},
+    {"rank": 18,  "name": "The Chinese University of Hong Kong (CUHK)",                    "domain": "cuhk.edu.hk"},
+    {"rank": 19,  "name": "The University of New South Wales (UNSW Sydney)",                "domain": "unsw.edu.au"},
+    {"rank": 20,  "name": "Johns Hopkins University",                                      "domain": "jhu.edu"},
+    {"rank": 20,  "name": "University of California, Berkeley (UCB)",                      "domain": "berkeley.edu"},
+    {"rank": 22,  "name": "EPFL - Ecole polytechnique federale de Lausanne",               "domain": "epfl.ch"},
+    {"rank": 22,  "name": "The University of Melbourne",                                   "domain": "unimelb.edu.au"},
+    {"rank": 24,  "name": "University of Chicago",                                         "domain": "uchicago.edu"},
+    {"rank": 25,  "name": "Technical University of Munich",                                "domain": "tum.de"},
+    {"rank": 26,  "name": "Fudan University",                                              "domain": "fudan.edu.cn"},
+    {"rank": 27,  "name": "Princeton University",                                          "domain": "princeton.edu"},
+    {"rank": 28,  "name": "The University of Sydney",                                      "domain": "sydney.edu.au"},
+    {"rank": 29,  "name": "Australian National University (ANU)",                          "domain": "anu.edu.au"},
+    {"rank": 30,  "name": "McGill University",                                             "domain": "mcgill.ca"},
+    {"rank": 31,  "name": "Monash University",                                             "domain": "monash.edu"},
+    {"rank": 32,  "name": "University of Toronto",                                         "domain": "utoronto.ca"},
+    {"rank": 33,  "name": "The Hong Kong University of Science and Technology",             "domain": "hkust.edu.hk"},
+    {"rank": 34,  "name": "Universite PSL",                                                "domain": "psl.eu"},
+    {"rank": 35,  "name": "The University of Edinburgh",                                   "domain": "ed.ac.uk"},
+    {"rank": 36,  "name": "Shanghai Jiao Tong University",                                 "domain": "sjtu.edu.cn"},
+    {"rank": 37,  "name": "King's College London",                                         "domain": "kcl.ac.uk"},
+    {"rank": 38,  "name": "Seoul National University",                                     "domain": "snu.ac.kr"},
+    {"rank": 39,  "name": "The University of Tokyo",                                       "domain": "u-tokyo.ac.jp"},
+    {"rank": 40,  "name": "The University of Manchester",                                  "domain": "manchester.ac.uk"},
+    {"rank": 40,  "name": "The University of Queensland",                                  "domain": "uq.edu.au"},
+    {"rank": 42,  "name": "Yonsei University",                                             "domain": "yonsei.ac.kr"},
+    {"rank": 43,  "name": "Columbia University",                                           "domain": "columbia.edu"},
+    {"rank": 43,  "name": "Institut Polytechnique de Paris",                               "domain": "ip-paris.fr"},
+    {"rank": 45,  "name": "Northwestern University",                                       "domain": "northwestern.edu"},
+    {"rank": 45,  "name": "University of British Columbia",                                "domain": "ubc.ca"},
+    {"rank": 47,  "name": "Zhejiang University",                                           "domain": "zju.edu.cn"},
+    {"rank": 48,  "name": "Delft University of Technology",                                "domain": "tudelft.nl"},
+    {"rank": 49,  "name": "University of California, Los Angeles (UCLA)",                  "domain": "ucla.edu"},
+    {"rank": 50,  "name": "The Hong Kong Polytechnic University",                          "domain": "polyu.edu.hk"},
+    {"rank": 51,  "name": "University of Michigan-Ann Arbor",                              "domain": "umich.edu"},
+    {"rank": 52,  "name": "City University of Hong Kong (CityUHK)",                        "domain": "cityu.edu.hk"},
+    {"rank": 52,  "name": "Korea University",                                              "domain": "korea.ac.kr"},
+    {"rank": 54,  "name": "National Taiwan University (NTU)",                              "domain": "ntu.edu.tw"},
+    {"rank": 55,  "name": "Carnegie Mellon University",                                    "domain": "cmu.edu"},
+    {"rank": 56,  "name": "Universiti Malaya (UM)",                                        "domain": "um.edu.my"},
+    {"rank": 57,  "name": "University of Bristol",                                         "domain": "bristol.ac.uk"},
+    {"rank": 58,  "name": "New York University (NYU)",                                     "domain": "nyu.edu"},
+    {"rank": 59,  "name": "KU Leuven",                                                     "domain": "kuleuven.be"},
+    {"rank": 60,  "name": "University of Amsterdam",                                       "domain": "uva.nl"},
+    {"rank": 61,  "name": "Ludwig-Maximilians-Universitaet Muenchen",                      "domain": "lmu.de"},
+    {"rank": 62,  "name": "The London School of Economics and Political Science (LSE)",     "domain": "lse.ac.uk"},
+    {"rank": 63,  "name": "KFUPM",                                                         "domain": "kfupm.edu.sa"},
+    {"rank": 64,  "name": "Kyoto University",                                              "domain": "kyoto-u.ac.jp"},
+    {"rank": 65,  "name": "KAIST",                                                         "domain": "kaist.ac.kr"},
+    {"rank": 66,  "name": "Brown University",                                              "domain": "brown.edu"},
+    {"rank": 67,  "name": "The University of Auckland",                                    "domain": "auckland.ac.nz"},
+    {"rank": 68,  "name": "The University of Warwick",                                     "domain": "warwick.ac.uk"},
+    {"rank": 68,  "name": "University of Birmingham",                                      "domain": "birmingham.ac.uk"},
+    {"rank": 70,  "name": "Duke University",                                               "domain": "duke.edu"},
+    {"rank": 71,  "name": "Lund University",                                               "domain": "lu.se"},
+    {"rank": 72,  "name": "University of Texas at Austin",                                 "domain": "utexas.edu"},
+    {"rank": 73,  "name": "Sorbonne University",                                           "domain": "sorbonne-universite.fr"},
+    {"rank": 74,  "name": "University of Illinois Urbana-Champaign",                       "domain": "illinois.edu"},
+    {"rank": 75,  "name": "Trinity College Dublin, The University of Dublin",               "domain": "tcd.ie"},
+    {"rank": 76,  "name": "Universite Paris-Saclay",                                       "domain": "universite-paris-saclay.fr"},
+    {"rank": 77,  "name": "The University of Western Australia",                           "domain": "uwa.edu.au"},
+    {"rank": 77,  "name": "University of Leeds",                                           "domain": "leeds.ac.uk"},
+    {"rank": 79,  "name": "Adelaide University",                                           "domain": "adelaide.edu.au"},
+    {"rank": 80,  "name": "University of Glasgow",                                         "domain": "gla.ac.uk"},
+    {"rank": 81,  "name": "University of California, San Diego (UCSD)",                    "domain": "ucsd.edu"},
+    {"rank": 82,  "name": "KTH Royal Institute of Technology",                             "domain": "kth.se"},
+    {"rank": 82,  "name": "The University of Sheffield",                                   "domain": "sheffield.ac.uk"},
+    {"rank": 84,  "name": "Universidad de Buenos Aires (UBA)",                             "domain": "uba.ar"},
+    {"rank": 85,  "name": "Durham University",                                             "domain": "durham.ac.uk"},
+    {"rank": 86,  "name": "Universitaet Heidelberg",                                       "domain": "uni-heidelberg.de"},
+    {"rank": 87,  "name": "Politecnico di Milano",                                         "domain": "polimi.it"},
+    {"rank": 87,  "name": "University of Technology Sydney",                               "domain": "uts.edu.au"},
+    {"rank": 87,  "name": "Uppsala University",                                            "domain": "uu.se"},
+    {"rank": 90,  "name": "Nanjing University",                                            "domain": "nju.edu.cn"},
+    {"rank": 90,  "name": "University of Copenhagen",                                      "domain": "ku.dk"},
+    {"rank": 92,  "name": "Pennsylvania State University",                                 "domain": "psu.edu"},
+    {"rank": 92,  "name": "University of Washington",                                      "domain": "washington.edu"},
+    {"rank": 94,  "name": "Boston University",                                             "domain": "bu.edu"},
+    {"rank": 95,  "name": "The University of Osaka",                                       "domain": "osaka-u.ac.jp"},
+    {"rank": 96,  "name": "University of Alberta",                                         "domain": "ualberta.ca"},
+    {"rank": 97,  "name": "Institute of Science Tokyo",                                    "domain": "isct.ac.jp"},
+    {"rank": 97,  "name": "University of Nottingham",                                      "domain": "nottingham.ac.uk"},
+    {"rank": 98,  "name": "Freie Universitaet Berlin",                                     "domain": "fu-berlin.de"},
+    {"rank": 98,  "name": "University of Zurich",                                          "domain": "uzh.ch"},
+    {"rank": 100, "name": "Purdue University",                                             "domain": "purdue.edu"},
+    {"rank": 100, "name": "University College Dublin",                                     "domain": "ucd.ie"},
+    {"rank": 102, "name": "Tohoku University",                                             "domain": "tohoku.ac.jp"},
+    {"rank": 103, "name": "Queen Mary University of London",                               "domain": "qmul.ac.uk"},
+    {"rank": 104, "name": "RWTH Aachen University",                                       "domain": "rwth-aachen.de"},
+    {"rank": 105, "name": "Technical University of Denmark",                               "domain": "dtu.dk"},
+    {"rank": 106, "name": "Pohang University of Science And Technology (POSTECH)",          "domain": "postech.ac.kr"},
+    {"rank": 107, "name": "King Saud University",                                          "domain": "ksu.edu.sa"},
+    {"rank": 108, "name": "Sungkyunkwan University (SKKU)",                                "domain": "skku.edu"},
+    {"rank": 109, "name": "Qatar University",                                              "domain": "qu.edu.qa"},
+    {"rank": 110, "name": "KIT, Karlsruhe Institute of Technology",                        "domain": "kit.edu"},
+    {"rank": 111, "name": "Sapienza University of Rome",                                   "domain": "uniroma1.it"},
+    {"rank": 111, "name": "University of Southampton",                                     "domain": "southampton.ac.uk"},
+    {"rank": 113, "name": "University of Waterloo",                                        "domain": "uwaterloo.ca"},
+    {"rank": 113, "name": "Utrecht University",                                            "domain": "uu.nl"},
+    {"rank": 115, "name": "Lomonosov Moscow State University",                             "domain": "msu.ru"},
+    {"rank": 115, "name": "University of St Andrews",                                      "domain": "st-andrews.ac.uk"},
+    {"rank": 118, "name": "Indian Institute of Technology Delhi (IITD)",                   "domain": "iitd.ac.in"},
+    {"rank": 119, "name": "Leiden University",                                             "domain": "leidenuniv.nl"},
+    {"rank": 119, "name": "Pontificia Universidad Catolica de Chile (UC)",                 "domain": "uc.cl"},
+    {"rank": 119, "name": "RMIT University",                                               "domain": "rmit.edu.au"},
+    {"rank": 122, "name": "Rice University",                                               "domain": "rice.edu"},
+    {"rank": 123, "name": "Alma Mater Studiorum - Universita di Bologna",                  "domain": "unibo.it"},
+    {"rank": 123, "name": "University of Helsinki",                                        "domain": "helsinki.fi"},
+    {"rank": 125, "name": "University of Bath",                                            "domain": "bath.ac.uk"},
+    {"rank": 126, "name": "Aalto University",                                              "domain": "aalto.fi"},
+    {"rank": 126, "name": "Macquarie University (Sydney, Australia)",                      "domain": "mq.edu.au"},
+    {"rank": 128, "name": "Aarhus University",                                             "domain": "au.dk"},
+    {"rank": 128, "name": "Universiti Sains Malaysia (USM)",                               "domain": "usm.my"},
+    {"rank": 130, "name": "Universiti Kebangsaan Malaysia (UKM)",                          "domain": "ukm.edu.my"},
+    {"rank": 131, "name": "University of Oslo",                                            "domain": "uio.no"},
+    {"rank": 131, "name": "University of Wisconsin-Madison",                               "domain": "wisc.edu"},
+    {"rank": 133, "name": "Universidade de Sao Paulo",                                     "domain": "usp.br"},
+    {"rank": 134, "name": "Indian Institute of Technology Bombay (IITB)",                  "domain": "iitb.ac.in"},
+    {"rank": 134, "name": "University of Science and Technology of China",                 "domain": "ustc.edu.cn"},
+    {"rank": 136, "name": "University of Exeter",                                          "domain": "exeter.ac.uk"},
+    {"rank": 137, "name": "University of California, Davis",                               "domain": "ucdavis.edu"},
+    {"rank": 138, "name": "Universiti Putra Malaysia (UPM)",                               "domain": "upm.edu.my"},
+    {"rank": 139, "name": "University of Liverpool",                                       "domain": "liverpool.ac.uk"},
+    {"rank": 140, "name": "Humboldt-Universitaet zu Berlin",                               "domain": "hu-berlin.de"},
+    {"rank": 140, "name": "University of Vienna",                                          "domain": "univie.ac.at"},
+    {"rank": 142, "name": "Georgia Institute of Technology",                               "domain": "gatech.edu"},
+    {"rank": 142, "name": "National Tsing Hua University - NTHU",                          "domain": "nthu.edu.tw"},
+    {"rank": 142, "name": "Western University",                                            "domain": "uwo.ca"},
+    {"rank": 145, "name": "Universidad Nacional Autonoma de Mexico (UNAM)",                "domain": "unam.mx"},
+    {"rank": 146, "name": "Tongji University",                                             "domain": "tongji.edu.cn"},
+    {"rank": 147, "name": "Khalifa University",                                            "domain": "ku.ac.ae"},
+    {"rank": 148, "name": "Erasmus University Rotterdam",                                  "domain": "eur.nl"},
+    {"rank": 149, "name": "Newcastle University",                                          "domain": "ncl.ac.uk"},
+    {"rank": 150, "name": "Ghent University",                                              "domain": "ugent.be"},
+    {"rank": 150, "name": "University of Basel",                                           "domain": "unibas.ch"},
 ]
+
+# Backward-compatible flat domain list (used by school_searcher.py TavilySearch)
+QS_150_list: List[str] = [s["domain"] for s in QS_150_schools]
