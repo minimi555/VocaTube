@@ -24,12 +24,32 @@ object Network {
 
     const val BASE_URL = "http://127.0.0.1:8000/"
 
+    /**
+     * Marker header consumed by an interceptor below: its value (seconds) becomes
+     * the read timeout for that single call, then the header is stripped before
+     * the request goes out. Used by the school-search endpoint, whose LangChain
+     * agent can take 10-30s while the default OkHttp read timeout is 10s.
+     */
+    const val HEADER_READ_TIMEOUT = "X-Read-Timeout"
+
     private val json = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
     }
 
     val okHttp: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor { chain ->
+            val request = chain.request()
+            val seconds = request.header(HEADER_READ_TIMEOUT)?.toIntOrNull()
+            if (seconds == null) {
+                chain.proceed(request)
+            } else {
+                chain.withReadTimeout(seconds, java.util.concurrent.TimeUnit.SECONDS)
+                    .proceed(
+                        request.newBuilder().removeHeader(HEADER_READ_TIMEOUT).build()
+                    )
+            }
+        }
         .addInterceptor(
             HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BASIC
