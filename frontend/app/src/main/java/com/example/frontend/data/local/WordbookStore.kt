@@ -23,6 +23,12 @@ private val Context.wordbookDataStore: DataStore<Preferences> by preferencesData
 class WordbookStore(private val context: Context) {
 
     private val key = stringPreferencesKey("words_json")
+    private val currentBookKey = stringPreferencesKey("current_wordbook")
+
+    /** 当前选中的单词书（CET4 / CET6 / TOFEL / IELTS / SAT / kaoyan），未选时为 null。 */
+    val currentBook: Flow<String?> = context.wordbookDataStore.data.map { prefs ->
+        prefs[currentBookKey]
+    }
 
     /** 生词列表流，最新加入的排在最前。 */
     val words: Flow<List<String>> = context.wordbookDataStore.data.map { prefs ->
@@ -53,6 +59,13 @@ class WordbookStore(private val context: Context) {
         context.wordbookDataStore.edit { prefs ->
             val current = decode(prefs[key])
             prefs[key] = encode(current.filterNot { it == word })
+        }
+    }
+
+    /** 设置当前学习的单词书。 */
+    suspend fun selectBook(book: String) {
+        context.wordbookDataStore.edit { prefs ->
+            prefs[currentBookKey] = book
         }
     }
 

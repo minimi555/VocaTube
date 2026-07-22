@@ -23,11 +23,21 @@ class WordbookViewModel(app: Application) : AndroidViewModel(app) {
         initialValue = emptyList()
     )
 
+    val currentBook: StateFlow<String?> = store.currentBook.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = null
+    )
+
     fun add(word: String) {
         viewModelScope.launch { store.add(word) }
     }
 
     fun remove(word: String) {
         viewModelScope.launch { store.remove(word) }
+    }
+
+    fun selectBook(book: String) {
+        viewModelScope.launch { store.selectBook(book) }
     }
 }
