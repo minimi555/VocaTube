@@ -4,39 +4,58 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-VocaTube downloads YouTube videos and subtitles, then builds a vocabulary/learning database from the subtitle content. It's a Python backend (no frontend yet,which will be complete in Android Studio) split into a downloader pipeline (`YouTube_Installer.py`), an unrelated school-search LangChain agent (`school_searcher.py`), and SQL schema notes for two logically separate databases (`vediobase.md`, `wordbase.md`).
+VocaTube is a vocabulary/video-learning app: a FastAPI backend serves word lookups, downloaded YouTube videos with bilingual subtitles, an English-test-prep RAG assistant, and a QS-top-150 school search agent; a Jetpack Compose Android app (`frontend/`) consumes it. The backend never runs the YouTube downloader itself anymore — that pipeline was removed from the repo (see `backend/app/Agent.py`, which still imports the now-deleted `YouTube_Installer` module and is dead code left over from that removal).
 
 ## Setup and commands
 
-Dependency management uses `pip` (see `backend/requirements.txt`, requires Python >=3.12).
+Backend dependency management uses `pip` (see `backend/requirements.txt`, requires Python >=3.12). There is no test suite or lint config in the repo.
 
-There is no test suite, lint config, or build step in the repo currently.
-
-Run the video downloader directly (also its own smoke test):
+Run the API server (from `backend/app/`, so relative imports like `from database import ...` resolve):
 ```
-cd backend/app && python YouTube_Installer.py
+cd backend/app && uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-Run the school-search agent (requires `TAVILY_API_KEY` and `DEEPSEEK_API_KEY` in `backend/.env`):
+Build/ingest the RAG vector store (must be run once before `/ask` works — it raises 503 otherwise):
+```
+cd backend/app && python RAG.py ingest
+```
+`RAG.py` also has a CLI for ad-hoc querying outside the API: `python RAG.py ask "问题..."` or `python RAG.py` for an interactive REPL.
+
+Run the school-search agent standalone (bypassing the API), useful for debugging Tavily/DeepSeek behavior directly:
 ```
 cd backend/app && python school_searcher.py
 ```
 
+Frontend (Android Studio project under `frontend/`, not runnable from this machine — no JDK/Android SDK here per project setup):
+```
+cd frontend && ./gradlew assembleDebug
+```
+When testing against a locally-running backend over USB: `adb reverse tcp:8000 tcp:8000` (the app's `Network.BASE_URL` is hardcoded to `http://127.0.0.1:8000/`).
+
+### Required `.env` (in `backend/.env`, gitignored)
+- `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME_MAIN` (wordbase), `DB_NAME_LOG` (videobase) — MySQL connection, read by `database.py` via `pydantic_settings`.
+- `TAVILY_API_KEY`, `DEEPSEEK_API_KEY` — school search agent (`school_searcher.py`).
+- `ZHIPU_URL`, `ZHIPU_API_KEY`, `DEEPSEEK_API_KEY` — RAG embeddings + LLM (`RAG.py`).
+
 ## Architecture
 
-**Video/subtitle pipeline** (`backend/app/YouTube_Installer.py`):
-- `Download_Video(download_list)` uses `yt-dlp` to download best video+audio (merged to mp4 via ffmpeg) for each URL, then separately attempts subtitle downloads.
-- Subtitle language fallback is priority-ordered: Chinese tries `['zh', 'zh-Hans', 'zh-Hant', 'zh-TW']`, English tries `['en', 'en-US']`, stopping at the first available match (checks both manual `subtitles` and `automatic_captions`).
-- Output paths are namespaced by a `sub_path` value imported from the video URL module: `/opt/assets/video/{sub_path}`, `/opt/assets/subs/zh/{sub_path}`, `/opt/assets/subs/en/{sub_path}`. These are absolute host paths, not relative to the repo.
-- Per-URL failures are collected and don't stop the batch; a summary exception is raised at the end if any URL failed outright (subtitle failures are only warned, not fatal).
-- `main.py` wraps this in a LangGraph-style `AgentState`/node (`VideoDownloader`) for future graph composition, but is not yet wired into an actual graph.
+### Backend (`backend/app/`, FastAPI)
 
-**URL batches** (`backend/app/video_url/url_*.py`): each file defines a `url_1`/`url_2`/... list of YouTube URLs plus a `sub_path` string (currently a plain numeral like `"1"`) that becomes the output subdirectory name. `YouTube_Installer.py` currently hardcodes the import to `url_1` — swap the import to process a different batch.
+**Two logically separate MySQL databases**, each with its own SQLAlchemy engine/session/declarative base (`database.py`: `wordbase_engine`/`WordbaseSessionLocal`/`WordbaseBase` and `videobase_engine`/`VideobaseSessionLocal`/`VideobaseBase`, exposed as FastAPI dependencies `get_wordbase_db`/`get_videobase_db`). Models for both live together in `models.py` but inherit from different bases:
+- **wordbase** (`DB_NAME_MAIN`): `Word`/`Translation`/`Category`/`WordCategory` (vocabulary + many-to-many category tagging — schema documented in `wordbase.md`), plus `School`/`SchoolSearchHistory` for the school-search feature.
+- **videobase** (`DB_NAME_LOG`, despite the name it stores video metadata, not logs): `Video` — title + relative paths to video/zh-subtitle/en-subtitle files (schema documented in `videobase.md`). These paths are served as static files: `main.py` mounts `/opt/assets` at `/assets`, and `GET /videos/{id}` builds URLs as `/assets/video/{video_path}`, `/assets/subs/zh/{subtitle_path_zh}`, `/assets/subs/en/{subtitle_path_en}`.
 
-**School search agent** (`backend/app/school_searcher.py`, `backend/QS.py`): an unrelated LangChain `create_agent` setup using `ChatDeepSeek` + Tavily search, restricted to `include_domains=QS_150_list` (official domains of the QS top-150 universities, defined in `QS.py`). Used to answer questions about English test (IELTS/TOEFL) requirements at these schools, grounded to their official sites. Requires `.env` with `TAVILY_API_KEY` and `DEEPSEEK_API_KEY`.
+Neither DB is populated by code in this repo — both `.md` files are schema/seed-data docs, not migrations; the videos+subtitles referenced by `videobase` are expected to already exist under `/opt/assets/...` on the host.
 
-**Database schemas** (not code, but define the target data model):
-- `vediobase.md`: `videos` table — maps a video title to its video file path and zh/en subtitle file paths (paths correspond to the `/opt/assets/...` output structure from the downloader).
-- `wordbase.md`: vocabulary schema — `categories`, `words`, `translations` (FK to `words`), `word_categories` (many-to-many join). This is the target schema for whatever NLP/vocabulary-extraction step consumes the downloaded subtitles (not yet implemented in `backend/app`).
+**RAG test-prep assistant** (`RAG.py`, backs `POST /ask`): ingests `backend/app/english_learning_md/*.md` (CET4/CET6/IELTS/SAT/TOEFL/kaoyan prep notes) by splitting on markdown headers then capping chunk size, embeds via a hand-rolled `ZhipuEmbeddings` (HTTP call to Zhipu's `embedding-3`, not a LangChain-provided integration), and stores in a Chroma collection persisted to `backend/app/chroma_db/` (gitignored, must be rebuilt locally with `python RAG.py ingest`). Answers are generated by DeepSeek (`deepseek-v4-flash` via `langchain-deepseek`) grounded strictly to the top-k retrieved chunks. `main.py`'s `/ask` endpoint translates the "vector store not built" `RuntimeError` into an HTTP 503.
 
-There is no actual DB connection code yet (`PyMySQL`/`SQLAlchemy` are only in `requirements.txt`, unused so far) and no code that populates `wordbase`/`vediobase` from the downloaded subtitles — the `.md` files are schema design docs, not migrations.
+**QS school-search agent** (`school_searcher.py` + `backend/QS.py`, backs `POST /school/search` and `GET /schools`): a LangChain `create_agent` (DeepSeek + `TavilySearch`) restricted via `include_domains=QS_150_list` to the official domains of QS-top-150 universities (`QS.py`'s `QS_150_schools` — rank/name/domain triples; `QS_150_list` is the flat domain list Tavily/the `schools` DB table uses). Used to answer English-test-requirement questions grounded to official university sites. This agent is slow (10–30s per query, per the frontend's `X-Read-Timeout` handling) — don't assume synchronous-fast latency when touching this path. Every `/school/search` call is persisted to `SchoolSearchHistory` (wordbase), separate from the RAG path which is stateless.
+
+### Frontend (`frontend/`, Jetpack Compose Android app)
+
+MVVM: `ui/<feature>/{FeatureScreen,FeatureViewModel}.kt` per bottom-nav section, `data/remote/` for the Retrofit layer, `data/local/` for on-device persistence. Four sections wired through `ui/nav/Section.kt` (`Dictionary` → `WordbookScreen`'s query counterpart, `VideoLearn`, `Wordbook`, `Consult`).
+
+- `data/remote/Network.kt` builds the single Retrofit/OkHttp client; `ApiService.kt` mirrors the FastAPI endpoints 1:1. A custom `X-Read-Timeout` header + OkHttp interceptor lets a single call (namely `school/search`) override the default read timeout — set this header rather than a global timeout when adding another slow endpoint.
+- `Network.assetUrl()` must be used to turn backend-relative `/assets/...` paths into loadable URLs — it per-segment URL-encodes (paths contain spaces and full-width Unicode from video titles) while preserving `/` separators.
+- The backend is plain HTTP (`usesCleartextTraffic=true`), reachable only via `adb reverse` — there is no auth. Don't add TLS/auth assumptions to frontend networking code without an explicit backend change to match.
+- `frontend/FRONTEND_UPDATE_PLAN.md` is a design doc for the Consult (学习咨询) screen's integration with `/ask` + `/school/search` + `/school/history` — check it for the intended ViewModel/state shape before restructuring that screen.
