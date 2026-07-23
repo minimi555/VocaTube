@@ -13,6 +13,12 @@ from schemas import (
 )
 import RAG
 import school_searcher
+import quiz_agent
+from quiz_schemas import (
+    QuizGenerateRequest, QuizGenerateResponse,
+    QuizGradeRequest, QuizGradeResponse, QuizScore,
+    ClozeResult, ReadingResult,
+)
 
 app = FastAPI(title="VocaTube API")
 
@@ -156,3 +162,33 @@ def school_search_history(
         .all()
     )
     return rows
+
+
+# --------------------------------------------------------------------------- #
+# Quiz endpoints                                                               #
+# --------------------------------------------------------------------------- #
+
+@app.post("/quiz/generate", response_model=QuizGenerateResponse)
+def generate_quiz(req: QuizGenerateRequest):
+    """Generate a quiz from video English subtitles. Slow (30-60s, LLM in review loop)."""
+    if not req.subtitle_text.strip():
+        raise HTTPException(status_code=400, detail="subtitle_text is empty")
+    if not req.category_code.strip():
+        raise HTTPException(status_code=400, detail="category_code is empty")
+    try:
+        result = quiz_agent.generate_quiz(req.subtitle_text, req.category_code)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Quiz generation error: {e}")
+    return result
+
+
+@app.post("/quiz/grade", response_model=QuizGradeResponse)
+def grade_quiz(req: QuizGradeRequest):
+    """Grade user's quiz answers. Returns score + explanations for wrong answers."""
+    try:
+        result = quiz_agent.grade_quiz(req.quiz_id, req.cloze_answers, req.reading_answers)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Quiz grading error: {e}")
+    return result
