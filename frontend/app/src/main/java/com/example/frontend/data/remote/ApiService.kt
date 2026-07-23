@@ -50,7 +50,7 @@ interface ApiService {
 
     // ---- Quiz ----
 
-    @Headers("${Network.HEADER_READ_TIMEOUT}: 120")
+    @Headers("${Network.HEADER_READ_TIMEOUT}: 300")
     @POST("quiz/generate")
     suspend fun quizGenerate(@Body request: QuizGenerateRequest): QuizGenerateResponse
 
