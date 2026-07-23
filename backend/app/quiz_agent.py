@@ -269,7 +269,7 @@ def finalize_node(state: QuizState) -> dict:
 # Conditional routing                                                          #
 # --------------------------------------------------------------------------- #
 def route_after_review(state: QuizState) -> str:
-    if state["review_passed"] or state["review_count"] >= 5:
+    if state["review_passed"] or state["review_count"] >= 3:
         return "finalize"
     return "generate_quiz"
 
