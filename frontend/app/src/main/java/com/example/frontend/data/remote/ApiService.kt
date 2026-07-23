@@ -47,4 +47,13 @@ interface ApiService {
 
     @GET("school/history")
     suspend fun schoolHistory(@Query("limit") limit: Int = 20): List<SchoolSearchHistoryItem>
+
+    // ---- Quiz ----
+
+    @Headers("${Network.HEADER_READ_TIMEOUT}: 120")
+    @POST("quiz/generate")
+    suspend fun quizGenerate(@Body request: QuizGenerateRequest): QuizGenerateResponse
+
+    @POST("quiz/grade")
+    suspend fun quizGrade(@Body request: QuizGradeRequest): QuizGradeResponse
 }

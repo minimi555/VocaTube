@@ -104,3 +104,71 @@ data class SchoolSearchHistoryItem(
     val answer: String = "",
     @SerialName("created_at") val createdAt: String = ""
 )
+
+// ---- Quiz (POST /quiz/generate, POST /quiz/grade) ----
+
+@Serializable
+data class QuizGenerateRequest(
+    @SerialName("subtitle_text") val subtitleText: String,
+    @SerialName("category_code") val categoryCode: String,
+)
+
+@Serializable
+data class QuizReadingQuestion(
+    val index: Int,
+    val type: String = "",
+    val question: String = "",
+    val options: Map<String, String> = emptyMap(),
+)
+
+@Serializable
+data class QuizGenerateResponse(
+    @SerialName("quiz_id") val quizId: String = "",
+    @SerialName("cloze_passage") val clozePassage: String = "",
+    @SerialName("cloze_count") val clozeCount: Int = 0,
+    @SerialName("reading_passage") val readingPassage: String = "",
+    @SerialName("reading_questions") val readingQuestions: List<QuizReadingQuestion> = emptyList(),
+)
+
+@Serializable
+data class QuizGradeRequest(
+    @SerialName("quiz_id") val quizId: String,
+    @SerialName("cloze_answers") val clozeAnswers: Map<String, String>,
+    @SerialName("reading_answers") val readingAnswers: Map<String, String>,
+)
+
+@Serializable
+data class QuizScore(
+    @SerialName("cloze_correct") val clozeCorrect: Int = 0,
+    @SerialName("cloze_total") val clozeTotal: Int = 0,
+    @SerialName("reading_correct") val readingCorrect: Int = 0,
+    @SerialName("reading_total") val readingTotal: Int = 0,
+    @SerialName("total_correct") val totalCorrect: Int = 0,
+    @SerialName("total_questions") val totalQuestions: Int = 0,
+)
+
+@Serializable
+data class QuizClozeResult(
+    val index: Int,
+    @SerialName("user_answer") val userAnswer: String = "",
+    @SerialName("correct_answer") val correctAnswer: String = "",
+    @SerialName("is_correct") val isCorrect: Boolean = false,
+    val lemma: String = "",
+    val explanation: String? = null,
+)
+
+@Serializable
+data class QuizReadingResult(
+    val index: Int,
+    @SerialName("user_answer") val userAnswer: String = "",
+    @SerialName("correct_answer") val correctAnswer: String = "",
+    @SerialName("is_correct") val isCorrect: Boolean = false,
+    val explanation: String? = null,
+)
+
+@Serializable
+data class QuizGradeResponse(
+    val score: QuizScore = QuizScore(),
+    @SerialName("cloze_results") val clozeResults: List<QuizClozeResult> = emptyList(),
+    @SerialName("reading_results") val readingResults: List<QuizReadingResult> = emptyList(),
+)

@@ -64,6 +64,8 @@ fun VideoLearnScreen(
 ) {
     val listState by vm.listState.collectAsStateWithLifecycle()
     val playback by vm.playback.collectAsStateWithLifecycle()
+    val quizState by vm.quizState.collectAsStateWithLifecycle()
+    val currentBook by vm.currentBook.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Open)
     val scope = rememberCoroutineScope()
@@ -142,15 +144,17 @@ fun VideoLearnScreen(
                     }
                 }
                 HorizontalDivider()
-                // 下半部分：留空（后续按英文字幕出题）
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("练习区（开发中）", color = Color.Gray)
-                }
+                // 下半部分：练习区
+                QuizSection(
+                    quizState = quizState,
+                    currentBook = currentBook,
+                    hasVideo = playback != null,
+                    hasSubtitles = playback?.enCues?.isNotEmpty() == true,
+                    onGenerate = vm::generateQuiz,
+                    onSubmit = vm::submitAnswers,
+                    onReset = vm::resetQuiz,
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                )
             }
         }
     }
