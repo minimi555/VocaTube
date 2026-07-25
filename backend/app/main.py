@@ -171,12 +171,12 @@ def school_search_history(
 @app.post("/quiz/generate", response_model=QuizGenerateResponse)
 def generate_quiz(req: QuizGenerateRequest):
     """Generate a quiz from video English subtitles. Slow (30-60s, LLM in review loop)."""
-    if not req.subtitle_text.strip():
-        raise HTTPException(status_code=400, detail="subtitle_text is empty")
+    if not req.subtitle_path.strip():
+        raise HTTPException(status_code=400, detail="subtitle_path is empty")
     if not req.category_code.strip():
         raise HTTPException(status_code=400, detail="category_code is empty")
     try:
-        result = quiz_agent.generate_quiz(req.subtitle_text, req.category_code)
+        result = quiz_agent.generate_quiz(req.subtitle_path, req.category_code)
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Quiz generation error: {e}")
     return result

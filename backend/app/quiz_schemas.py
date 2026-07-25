@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class QuizGenerateRequest(BaseModel):
-    subtitle_text: str
+    subtitle_path: str
     category_code: str
     video_id: Optional[int] = None
 

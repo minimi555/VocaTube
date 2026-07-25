@@ -15,5 +15,4 @@ def _parse_srt(path):
 
 
 def _parse_subs(path)->str:
-    srt_path = "/home/xjc/Files/program/word_process/srt/JR： Can Art Change the World？ ｜ TED.en.srt" if not Path(path).exists() else path
-    return _parse_srt(srt_path)
+    return _parse_srt(path)

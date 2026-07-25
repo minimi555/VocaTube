@@ -17,15 +17,14 @@ import time
 import uuid
 from typing import TypedDict, Optional
 
-import nltk
-from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 from langchain_deepseek import ChatDeepSeek
 from langgraph.graph import StateGraph, START, END
 from dotenv import load_dotenv
 
 from database import WordbaseSessionLocal
 from models import Word, Category, WordCategory
+from utils.parse import _parse_subs
+from utils.lemma import _get_lemma
 from quiz_prompts import (
     GENERATE_SYSTEM_PROMPT,
     GENERATE_USER_PROMPT,
@@ -36,9 +35,6 @@ from quiz_prompts import (
 )
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-
-nltk.download("punkt_tab", quiet=True)
-nltk.download("wordnet", quiet=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -97,14 +93,8 @@ def prepare_words_node(state: QuizState) -> dict:
     text = state["subtitle_text"]
     category_code = state["category_code"]
 
-    lemmatizer = WordNetLemmatizer()
-    tokens = word_tokenize(text.lower())
-    lemmas = set()
-    for t in tokens:
-        if t.isalpha() and len(t) > 2:
-            lemmas.add(lemmatizer.lemmatize(t, pos="v"))
-            lemmas.add(lemmatizer.lemmatize(t, pos="n"))
-    subtitle_words = sorted(lemmas)
+    lemmas = _get_lemma(text)
+    subtitle_words = sorted(set(lemmas))
 
     db = WordbaseSessionLocal()
     try:
@@ -308,13 +298,19 @@ def _get_graph():
 # --------------------------------------------------------------------------- #
 # Public API: generate_quiz                                                    #
 # --------------------------------------------------------------------------- #
-def generate_quiz(subtitle_text: str, category_code: str) -> dict:
+def generate_quiz(subtitle_path: str, category_code: str) -> dict:
     """Run the generate+review graph and return quiz for frontend.
+
+    Args:
+        subtitle_path: path to the .srt subtitle file
+        category_code: e.g. "CET4", "TOEFL"
 
     Returns:
         {"quiz_id": str, "cloze_passage": str, "cloze_count": int,
          "reading_passage": str, "reading_questions": list}
     """
+    subtitle_text = _parse_subs(subtitle_path)
+
     graph = _get_graph()
     result = graph.invoke({
         "subtitle_text": subtitle_text,
