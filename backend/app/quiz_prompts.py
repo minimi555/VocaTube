@@ -28,29 +28,28 @@ GENERATE_USER_PROMPT = """请根据以下信息出题：
 ```json
 {{
   "cloze": {{
-    "passage": "将字幕改写为一篇完整短文，其中10个答案词用 ____（序号）标记，如 ____(1)、____(2) ...",
+    "passage": "The world is getting warmer due to gas releasion of 1.____ and 2.____ dioxide.",
     "blanks": [
-      {{"index": 1, "answer": "字幕中的原始词形", "lemma": "词的原型", "sentence": "该词所在的原句"}},
-      {{"index": 2, "answer": "...", "lemma": "...", "sentence": "..."}},
+      {{"index": 1, "answer": "methone"}},
+      {{"index": 2, "answer": "carbon",}},
       ...共10个
     ]
   }},
   "reading_comprehension": {{
-    "passage": "基于字幕内容改写的阅读理解短文",
     "questions": [
       {{
         "index": 1,
         "type": "main_idea",
-        "question": "主旨理解题题干",
-        "options": {{"A": "选项A", "B": "选项B", "C": "选项C", "D": "选项D"}},
-        "answer": "正确选项字母"
+        "question": "What is the main idea of the passage?",
+        "options": {{"A": "The world is getting warmer", "B": "We need to reduce carbon emissions", "C": "We should protect the environment", "D": "The passage discusses the impact of climate change"}},
+        "answer": "A"
       }},
       {{
         "index": 2,
         "type": "detail",
-        "question": "细节理解题题干",
-        "options": {{"A": "选项A", "B": "选项B", "C": "选项C", "D": "选项D"}},
-        "answer": "正确选项字母"
+        "question": "What methods are suggested to reduce carbon emissions in the passage?",
+        "options": {{"A": "Plant more trees.", "B": "Use renewable energy sources.", "C": "Improve energy efficiency.", "D": "Increase public transportation."}},
+        "answer": "A"
       }}
     ]
   }}
@@ -65,7 +64,6 @@ FEEDBACK_SECTION_TEMPLATE = """【审题反馈（请根据以下意见修改）�
 REVIEW_SYSTEM_PROMPT = """你是一名英语考试审题专家。你的任务是审核出题者生成的题目质量，检查以下方面：
 
 1. 选词填空：
-   - 答案单词的lemma是否确实出现在字幕词汇列表中
    - 答案单词是否合理（是字幕中实际出现的词的某种形式）
    - 句子是否通顺、上下文是否完整
 
@@ -75,7 +73,7 @@ REVIEW_SYSTEM_PROMPT = """你是一名英语考试审题专家。你的任务是
    - 第一题是否考察主旨，第二题是否考察细节
 
 如果发现问题，请明确指出哪些题目有什么问题，以及如何修改。
-如果全部通过，回复"PASS"。"""
+如果全部通过，回复" 题目没有问题，PASS"。"""
 
 REVIEW_USER_PROMPT = """请审核以下题目：
 
@@ -88,7 +86,7 @@ REVIEW_USER_PROMPT = """请审核以下题目：
 【生成的题目JSON】
 {quiz_json}"""
 
-GRADE_EXPLANATION_PROMPT = """你是一名英语教师，请为学生的错题提供简洁的中文解析。
+GRADE_EXPLANATION_PROMPT = """你是一名耐心仔细，擅长将英语问题讲解得通俗易懂的英语教师，请为学生的错题提供简洁的中文解析，语气客观冷静且包涵鼓励。
 
 【字幕原文】
 {subtitle_text}
