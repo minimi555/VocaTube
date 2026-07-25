@@ -9,4 +9,4 @@ app/video_url/__pycache__
 app/chroma_db
 app/english_learning_md
 
-utils/_pycache_
+utils/__pycache__
