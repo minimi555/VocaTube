@@ -23,7 +23,41 @@ GENERATE_USER_PROMPT = """请根据以下信息出题：
 
 {feedback_section}
 
-请严格按照要求的JSON格式输出，包含10个选词填空和2个阅读理解题。"""
+请严格按照以下JSON格式输出（不要添加任何其他字段或修改结构）：
+
+```json
+{{
+  "cloze": {{
+    "passage": "将字幕改写为一篇完整短文，其中10个答案词用 ____（序号）标记，如 ____(1)、____(2) ...",
+    "blanks": [
+      {{"index": 1, "answer": "字幕中的原始词形", "lemma": "词的原型", "sentence": "该词所在的原句"}},
+      {{"index": 2, "answer": "...", "lemma": "...", "sentence": "..."}},
+      ...共10个
+    ]
+  }},
+  "reading_comprehension": {{
+    "passage": "基于字幕内容改写的阅读理解短文",
+    "questions": [
+      {{
+        "index": 1,
+        "type": "main_idea",
+        "question": "主旨理解题题干",
+        "options": {{"A": "选项A", "B": "选项B", "C": "选项C", "D": "选项D"}},
+        "answer": "正确选项字母"
+      }},
+      {{
+        "index": 2,
+        "type": "detail",
+        "question": "细节理解题题干",
+        "options": {{"A": "选项A", "B": "选项B", "C": "选项C", "D": "选项D"}},
+        "answer": "正确选项字母"
+      }}
+    ]
+  }}
+}}
+```
+
+注意：options必须是对象（{{"A":"...","B":"...","C":"...","D":"..."}}），不是数组。"""
 
 FEEDBACK_SECTION_TEMPLATE = """【审题反馈（请根据以下意见修改）】
 {feedback}"""

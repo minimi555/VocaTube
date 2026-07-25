@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-# OATH_SRT = "/opt/assets/subs/..." 
+# PATH_SRT = "/opt/assets/subs/..." 
 def _parse_srt(path):
     text = Path(path).read_text(encoding="utf-8")
     lines = []

@@ -71,7 +71,7 @@ _llm = None
 def _get_llm():
     global _llm
     if _llm is None:
-        _llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.7, timeout=120)
+        _llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.7, timeout=300)
     return _llm
 
 
