@@ -31,6 +31,7 @@ from quiz_prompts import (
     FEEDBACK_SECTION_TEMPLATE,
     REVIEW_SYSTEM_PROMPT,
     REVIEW_USER_PROMPT,
+    GRADE_SYSTEM_PROMPT,
     GRADE_EXPLANATION_PROMPT,
 )
 
@@ -59,16 +60,32 @@ def _get_stored_quiz(quiz_id: str) -> Optional[dict]:
 
 
 # --------------------------------------------------------------------------- #
-# LLM singleton                                                                #
+# Per-agent LLM instances                                                      #
 # --------------------------------------------------------------------------- #
-_llm = None
+_generate_llm = None
+_review_llm = None
+_grade_llm = None
 
 
-def _get_llm():
-    global _llm
-    if _llm is None:
-        _llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.7, timeout=300)
-    return _llm
+def _get_generate_llm():
+    global _generate_llm
+    if _generate_llm is None:
+        _generate_llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.4, timeout=300)
+    return _generate_llm
+
+
+def _get_review_llm():
+    global _review_llm
+    if _review_llm is None:
+        _review_llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.2, timeout=300)
+    return _review_llm
+
+
+def _get_grade_llm():
+    global _grade_llm
+    if _grade_llm is None:
+        _grade_llm = ChatDeepSeek(model="deepseek-v4-pro", temperature=0.6, timeout=300)
+    return _grade_llm
 
 
 # --------------------------------------------------------------------------- #
@@ -99,7 +116,7 @@ def prepare_words_node(state: QuizState) -> dict:
     db = WordbaseSessionLocal()
     try:
         category = db.query(Category).filter(Category.code == category_code).first()
-        if not category:
+        if not category: #不存在单词对应分类，eg CET4
             return {
                 "subtitle_words": subtitle_words,
                 "category_words": [],
@@ -131,7 +148,7 @@ def prepare_words_node(state: QuizState) -> dict:
 # Node 2: generate_quiz (LLM call)                                             #
 # --------------------------------------------------------------------------- #
 def generate_quiz_node(state: QuizState) -> dict:
-    llm = _get_llm()
+    llm = _get_generate_llm()
 
     feedback_section = ""
     if state.get("review_feedback"):
@@ -139,8 +156,8 @@ def generate_quiz_node(state: QuizState) -> dict:
 
     user_prompt = GENERATE_USER_PROMPT.format(
         subtitle_text=state["subtitle_text"],
-        category_words=", ".join(state["category_words"]) if state["category_words"] else "（无匹配词汇，请从字幕词汇中选择）",
-        subtitle_words=", ".join(state["subtitle_words"][:100]),
+        category_words=", ".join(state["category_words"]) if state["category_words"] else "（无匹配词汇，请从字幕词汇中随即选择）",
+        subtitle_words=", ".join(state["subtitle_words"][:60]),
         feedback_section=feedback_section,
     )
 
@@ -226,7 +243,7 @@ def review_quiz_node(state: QuizState) -> dict:
             "review_count": new_count,
         }
 
-    llm = _get_llm()
+    llm = _get_review_llm()
     review_prompt = REVIEW_USER_PROMPT.format(
         subtitle_text=state["subtitle_text"][:2000],
         subtitle_words=", ".join(subtitle_words[:80]),
@@ -446,7 +463,7 @@ def grade_quiz(quiz_id: str, cloze_answers: dict[str, str], reading_answers: dic
 
 def _generate_explanations(subtitle_text: str, wrong_items: list[dict]) -> list[dict]:
     """Call LLM to generate explanations for wrong answers."""
-    llm = _get_llm()
+    llm = _get_grade_llm()
 
     wrong_text = ""
     for item in wrong_items:
@@ -460,7 +477,10 @@ def _generate_explanations(subtitle_text: str, wrong_items: list[dict]) -> list[
         wrong_questions=wrong_text,
     )
 
-    response = llm.invoke([{"role": "user", "content": prompt}])
+    response = llm.invoke([
+        {"role": "system", "content": GRADE_SYSTEM_PROMPT},
+        {"role": "user", "content": prompt},
+    ])
     content = response.content
 
     try:
