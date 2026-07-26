@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +39,7 @@ import com.example.frontend.data.remote.QuizClozeResult
 import com.example.frontend.data.remote.QuizReadingQuestion
 import com.example.frontend.data.remote.QuizReadingResult
 import com.example.frontend.data.remote.QuizScore
+import com.example.frontend.ui.theme.LocalAppExtraColors
 
 /**
  * 视频学习页下半部分的练习区 UI。
@@ -132,12 +132,11 @@ private fun IdleCard(
             Text(
                 text = "根据视频字幕生成练习题",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = hint,
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (canGenerate) MaterialTheme.colorScheme.primary else Color.Gray,
+                color = if (canGenerate) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Button(
                 onClick = onGenerate,
@@ -167,7 +166,7 @@ private fun ErrorColumn(message: String, onReset: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.padding(16.dp),
     ) {
-        Text(message, color = Color.Red, textAlign = TextAlign.Center)
+        Text(message, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
         Button(onClick = onReset) { Text("重试") }
     }
 }
@@ -197,7 +196,6 @@ private fun AnsweringContent(
             Text(
                 text = "一、选词填空",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
             )
         }
 
@@ -222,7 +220,6 @@ private fun AnsweringContent(
             Text(
                 text = "二、阅读理解",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
             )
         }
 
@@ -404,7 +401,6 @@ private fun ScoreCard(score: QuizScore) {
             Text(
                 text = "总分：${score.totalCorrect} / ${score.totalQuestions}",
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
             )
             Text(
                 text = "选词填空：${score.clozeCorrect} / ${score.clozeTotal}",
@@ -420,7 +416,7 @@ private fun ScoreCard(score: QuizScore) {
 
 @Composable
 private fun ClozeReviewItem(result: QuizClozeResult) {
-    val color = if (result.isCorrect) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val color = if (result.isCorrect) LocalAppExtraColors.current.success else MaterialTheme.colorScheme.error
     val mark = if (result.isCorrect) "✓" else "✗"
 
     Card(
@@ -438,7 +434,7 @@ private fun ClozeReviewItem(result: QuizClozeResult) {
             )
             Text(text = "答案：${result.correctAnswer}", fontWeight = FontWeight.Medium)
             if (!result.isCorrect) {
-                Text(text = "你的答案：${result.userAnswer}", color = Color.Gray)
+                Text(text = "你的答案：${result.userAnswer}", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!result.explanation.isNullOrBlank()) {
                 Text(text = "解析：${result.explanation}", style = MaterialTheme.typography.bodySmall)
@@ -449,7 +445,7 @@ private fun ClozeReviewItem(result: QuizClozeResult) {
 
 @Composable
 private fun ReadingReviewItem(result: QuizReadingResult) {
-    val color = if (result.isCorrect) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val color = if (result.isCorrect) LocalAppExtraColors.current.success else MaterialTheme.colorScheme.error
     val mark = if (result.isCorrect) "✓" else "✗"
 
     Card(
@@ -467,7 +463,7 @@ private fun ReadingReviewItem(result: QuizReadingResult) {
             )
             Text(text = "正确答案：${result.correctAnswer}", fontWeight = FontWeight.Medium)
             if (!result.isCorrect) {
-                Text(text = "你的答案：${result.userAnswer}", color = Color.Gray)
+                Text(text = "你的答案：${result.userAnswer}", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (!result.explanation.isNullOrBlank()) {
                 Text(text = "解析：${result.explanation}", style = MaterialTheme.typography.bodySmall)

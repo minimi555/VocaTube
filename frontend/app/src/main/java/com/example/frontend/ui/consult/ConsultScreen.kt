@@ -19,6 +19,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -204,7 +205,10 @@ private fun ErrorText(message: String) {
 /** 回答卡片：正文可选中复制（Agent 回答常含 URL），下方可选展示参考来源。 */
 @Composable
 private fun AnswerCard(answer: String, sources: List<SourceItem>) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
         Column(Modifier.padding(16.dp)) {
             SelectionContainer {
                 Text(answer, style = MaterialTheme.typography.bodyLarge)
@@ -238,7 +242,10 @@ private fun AnswerCard(answer: String, sources: List<SourceItem>) {
 
 @Composable
 private fun HistoryPanel(items: List<SchoolSearchHistoryItem>) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
         if (items.isEmpty()) {
             Text(
                 "暂无搜索记录",
@@ -294,7 +301,10 @@ private fun SchoolListSection(schools: List<SchoolItem>) {
         Text(if (expanded) "收起学校列表" else "🏫 QS 前 150 学校列表（${schools.size}）")
     }
     if (expanded) {
-        Card(Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        ) {
             LazyColumn(
                 Modifier.heightIn(max = 320.dp),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp),

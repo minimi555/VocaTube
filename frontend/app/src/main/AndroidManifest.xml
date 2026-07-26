@@ -5,6 +5,16 @@
     <!-- Network access for API calls and video streaming -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!-- Android 11+ package visibility: required so TextToSpeech can resolve/query TTS engines
+         (e.g. explicitly requesting the Google TTS engine, which has distinct en-GB/en-US voices,
+         instead of falling back to a manufacturer engine like Honor's that only ships one
+         generic English voice). -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

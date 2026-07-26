@@ -19,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -89,7 +90,7 @@ fun VideoLearnScreen(
                         Text(
                             s.message,
                             modifier = Modifier.padding(16.dp),
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                         )
                     is VideoListState.Success ->
                         LazyColumn {

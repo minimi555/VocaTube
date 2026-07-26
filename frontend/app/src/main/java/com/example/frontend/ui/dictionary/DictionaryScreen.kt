@@ -10,14 +10,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,7 +28,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.frontend.CodeMap
@@ -71,7 +73,7 @@ fun DictionaryScreen(
             }
         }
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
 
         when {
             state.loading -> {
@@ -114,48 +116,128 @@ private fun WordDetailContent(
 ) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
-            Text(
-                text = detail.word,
-                style = MaterialTheme.typography.headlineMedium,
+            WordHeaderCard(
+                detail = detail,
+                inWordbook = inWordbook,
+                onSpeakUk = onSpeakUk,
+                onSpeakUs = onSpeakUs,
+                onAddToWordbook = onAddToWordbook,
             )
         }
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onSpeakUk) { Text("🇬🇧 英音") }
-                OutlinedButton(onClick = onSpeakUs) { Text("🇺🇸 美音") }
-                Button(onClick = onAddToWordbook, enabled = !inWordbook) {
-                    Text(if (inWordbook) "已在生词本" else "加入生词本")
+
+        if (detail.translations.isNotEmpty()) {
+            item {
+                SectionCard(title = "释义") {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        detail.translations.forEach { t -> TranslationRow(t) }
+                    }
                 }
             }
         }
 
-        if (detail.categories.isNotEmpty()) {
-            item { SectionTitle("所属词库") }
+        if (detail.phrases.isNotEmpty()) {
             item {
-                Text(detail.categories.joinToString("、") { CodeMap.label(it) })
+                SectionCard(title = "短语") {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        detail.phrases.forEach { p -> PhraseRow(p) }
+                    }
+                }
             }
         }
 
-        if (detail.translations.isNotEmpty()) {
-            item { SectionTitle("释义") }
-            items(detail.translations) { t -> TranslationRow(t) }
-        }
-
-        if (detail.phrases.isNotEmpty()) {
-            item { SectionTitle("短语") }
-            items(detail.phrases) { p -> PhraseRow(p) }
-        }
-
         if (detail.sentences.isNotEmpty()) {
-            item { SectionTitle("例句") }
-            items(detail.sentences) { s -> SentenceRow(s) }
+            item {
+                SectionCard(title = "例句") {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        detail.sentences.forEach { s -> SentenceRow(s) }
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun SectionTitle(text: String) {
-    Text(text = text, style = MaterialTheme.typography.titleMedium)
+private fun WordHeaderCard(
+    detail: WordDetail,
+    inWordbook: Boolean,
+    onSpeakUk: () -> Unit,
+    onSpeakUs: () -> Unit,
+    onAddToWordbook: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                text = detail.word,
+                style = MaterialTheme.typography.headlineMedium,
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onSpeakUk, shape = RoundedCornerShape(50)) {
+                    Text("🇬🇧 英音")
+                }
+                OutlinedButton(onClick = onSpeakUs, shape = RoundedCornerShape(50)) {
+                    Text("🇺🇸 美音")
+                }
+                Button(
+                    onClick = onAddToWordbook,
+                    enabled = !inWordbook,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSecondary,
+                    ),
+                ) {
+                    Text(if (inWordbook) "已在生词本" else "加入生词本")
+                }
+            }
+
+            if (detail.categories.isNotEmpty()) {
+                Spacer(Modifier.height(12.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    detail.categories.forEach { code -> CategoryTag(CodeMap.label(code)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategoryTag(text: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+        )
+    }
+}
+
+@Composable
+private fun SectionCard(title: String, content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Spacer(Modifier.height(8.dp))
+            content()
+        }
+    }
 }
 
 @Composable
@@ -174,28 +256,24 @@ private fun TranslationRow(t: TranslationItem) {
 
 @Composable
 private fun PhraseRow(p: PhraseItem) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp)) {
-            Text(p.phrase, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                p.translation,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+    Column {
+        Text(p.phrase, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            p.translation,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
 @Composable
 private fun SentenceRow(s: SentenceItem) {
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp)) {
-            Text(s.sentence, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                s.translation,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+    Column {
+        Text(s.sentence, style = MaterialTheme.typography.bodyLarge)
+        Text(
+            s.translation,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
