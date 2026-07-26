@@ -28,6 +28,7 @@ class QuizGenerateResponse(BaseModel):
     quiz_id: str
     cloze_passage: str
     cloze_count: int
+    word_bank: list[str]
     reading_passage: str
     reading_questions: list[dict]
 

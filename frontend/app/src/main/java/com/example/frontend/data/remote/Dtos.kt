@@ -126,6 +126,7 @@ data class QuizGenerateResponse(
     @SerialName("quiz_id") val quizId: String = "",
     @SerialName("cloze_passage") val clozePassage: String = "",
     @SerialName("cloze_count") val clozeCount: Int = 0,
+    @SerialName("word_bank") val wordBank: List<String> = emptyList(),
     @SerialName("reading_passage") val readingPassage: String = "",
     @SerialName("reading_questions") val readingQuestions: List<QuizReadingQuestion> = emptyList(),
 )

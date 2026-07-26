@@ -1,8 +1,11 @@
 package com.example.frontend.ui.videolearn
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,17 +20,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
@@ -171,6 +177,7 @@ private fun ErrorColumn(message: String, onReset: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun AnsweringContent(
     state: QuizUiState.Answering,
@@ -180,6 +187,8 @@ private fun AnsweringContent(
     modifier: Modifier = Modifier,
 ) {
     val clozeCount = state.clozeCount.coerceAtLeast(0)
+    var activeBlankIndex by remember { mutableStateOf<Int?>(null) }
+
     val allClozeAnswered = (1..clozeCount).all { i ->
         clozeInputs[i.toString()].orEmpty().isNotBlank()
     }
@@ -187,6 +196,8 @@ private fun AnsweringContent(
         readingSelections[q.index.toString()].orEmpty().isNotBlank()
     }
     val canSubmit = allClozeAnswered && allReadingAnswered
+
+    val usedWords = clozeInputs.values.map { it.lowercase() }.toSet()
 
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -199,19 +210,76 @@ private fun AnsweringContent(
             )
         }
 
+        // Word bank chips
+        item {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                state.wordBank.forEach { word ->
+                    val isUsed = word.lowercase() in usedWords
+                    FilterChip(
+                        selected = false,
+                        enabled = !isUsed && activeBlankIndex != null,
+                        onClick = {
+                            activeBlankIndex?.let { idx ->
+                                clozeInputs[idx.toString()] = word
+                                activeBlankIndex = null
+                            }
+                        },
+                        label = { Text(word) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                        ),
+                    )
+                }
+            }
+        }
+
+        // Passage
         item {
             ClozePassageText(passage = state.clozePassage)
         }
 
+        // Blank slots
         items(clozeCount) { idx ->
             val number = (idx + 1).toString()
-            OutlinedTextField(
-                value = clozeInputs[number] ?: "",
-                onValueChange = { clozeInputs[number] = it },
-                label = { Text("第 ${idx + 1} 空") },
-                singleLine = true,
+            val filledWord = clozeInputs[number]
+            val isActive = activeBlankIndex == idx + 1
+
+            Card(
+                onClick = {
+                    if (filledWord != null) {
+                        clozeInputs.remove(number)
+                    }
+                    activeBlankIndex = idx + 1
+                },
                 modifier = Modifier.fillMaxWidth(),
-            )
+                border = if (isActive) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "第 ${idx + 1} 空",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.width(64.dp),
+                    )
+                    Text(
+                        text = filledWord ?: "点击选择",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (filledWord != null)
+                            MaterialTheme.colorScheme.onSurface
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    )
+                }
+            }
         }
 
         item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }

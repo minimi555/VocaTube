@@ -205,6 +205,27 @@ def _script_validate(quiz_json: dict, subtitle_words: list[str]) -> Optional[str
         if lemma not in subtitle_words:
             return f"cloze blank #{i+1} 的lemma '{lemma}' 不在字幕词汇中"
 
+    word_bank = cloze.get("word_bank")
+    if not word_bank or not isinstance(word_bank, list):
+        return "cloze 缺少 word_bank 列表"
+    if len(word_bank) != 15:
+        return f"word_bank 数量为 {len(word_bank)}，要求15个"
+    answers_exact = {blank["answer"] for blank in blanks}
+    if len(answers_exact) != 10:
+        return "cloze blanks 中存在重复答案词"
+    bank_lower = [w.lower() for w in word_bank]
+    if len(set(bank_lower)) != 15:
+        return "word_bank 中存在重复单词"
+    bank_set = set(word_bank)
+    for ans in answers_exact:
+        if ans not in bank_set:
+            return f"word_bank 中缺少答案词 '{ans}'（大小写须一致）"
+    answers_lower = {a.lower() for a in answers_exact}
+    distractors = [w for w in bank_lower if w not in answers_lower]
+    for w in distractors:
+        if w not in subtitle_words:
+            return f"word_bank 干扰词 '{w}' 不在字幕词汇中"
+
     rc = quiz_json.get("reading_comprehension")
     if not rc or not isinstance(rc, dict):
         return "缺少 reading_comprehension 字段"
@@ -323,7 +344,7 @@ def generate_quiz(subtitle_text: str, category_code: str) -> dict:
 
     Returns:
         {"quiz_id": str, "cloze_passage": str, "cloze_count": int,
-         "reading_passage": str, "reading_questions": list}
+         "word_bank": list, "reading_passage": str, "reading_questions": list}
     """
 
     graph = _get_graph()
@@ -356,6 +377,7 @@ def generate_quiz(subtitle_text: str, category_code: str) -> dict:
         "quiz_id": quiz_id,
         "cloze_passage": quiz_json.get("cloze", {}).get("passage", ""),
         "cloze_count": len(quiz_json.get("cloze", {}).get("blanks", [])),
+        "word_bank": quiz_json.get("cloze", {}).get("word_bank", []),
         "reading_passage": quiz_json.get("reading_comprehension", {}).get("passage", ""),
         "reading_questions": reading_questions_no_answer,
     }

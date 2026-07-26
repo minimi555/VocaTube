@@ -52,6 +52,7 @@ sealed interface QuizUiState {
         val quizId: String,
         val clozePassage: String,
         val clozeCount: Int,
+        val wordBank: List<String>,
         val readingPassage: String,
         val readingQuestions: List<QuizReadingQuestion>,
     ) : QuizUiState
@@ -143,6 +144,7 @@ class VideoLearnViewModel(app: Application) : AndroidViewModel(app) {
                     quizId = resp.quizId,
                     clozePassage = resp.clozePassage,
                     clozeCount = resp.clozeCount,
+                    wordBank = resp.wordBank,
                     readingPassage = resp.readingPassage,
                     readingQuestions = resp.readingQuestions,
                 )

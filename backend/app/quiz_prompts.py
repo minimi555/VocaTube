@@ -6,6 +6,7 @@ GENERATE_SYSTEM_PROMPT = """你是一名专业的英语考试出题专家，专�
 
 出题规则：
 - 选词填空：从字幕中选出符合学生当前备考范围的单词作为答案，将该单词在原句中替换为"____"
+- 选词填空需提供15个候选词（word_bank），包含10个正确答案和5个干扰词，乱序排列。干扰词必须从字幕词汇中选取，词性应与某个答案词接近，不能与任何答案词重复
 - 阅读理解：第一题考察视频整体主旨理解，第二题考察具体细节理解
 - 所有题目的答案必须能从字幕内容中找到明确依据"""
 
@@ -28,6 +29,7 @@ GENERATE_USER_PROMPT = """请根据以下信息出题：
 {{
   "cloze": {{
     "passage": "The world is getting warmer due to gas releasion of 1.____ and 2.____ dioxide. These gases trap heat in the 3.____ and prevent it from escaping into space, a phenomenon known as the 4.____ effect. Human activities such as burning 5.____ fuels, deforestation, and 6.____ farming have significantly increased these emissions. As a result, global 7.____ levels are rising, ice caps are 8.____, and extreme weather events like 9.____ and floods are becoming more frequent. Scientists urge nations to reduce their carbon 10.____ to slow down this process.",
+    "word_bank": ["fossil", "atmosphere", "livestock", "carbon", "territory", "melting", "methone", "footprint", "droughts", "greenhouse", "habitat", "phenomenon", "emission", "sea", "migration"],
     "blanks": [
       {{"index": 1, "answer": "methone"}},
       {{"index": 2, "answer": "carbon"}},
