@@ -23,7 +23,6 @@ from dotenv import load_dotenv
 
 from database import WordbaseSessionLocal
 from models import Word, Category, WordCategory
-from utils.parse import _parse_subs
 from utils.lemma import _get_lemma
 from quiz_prompts import (
     GENERATE_SYSTEM_PROMPT,
@@ -315,18 +314,17 @@ def _get_graph():
 # --------------------------------------------------------------------------- #
 # Public API: generate_quiz                                                    #
 # --------------------------------------------------------------------------- #
-def generate_quiz(subtitle_path: str, category_code: str) -> dict:
+def generate_quiz(subtitle_text: str, category_code: str) -> dict:
     """Run the generate+review graph and return quiz for frontend.
 
     Args:
-        subtitle_path: path to the .srt subtitle file
+        subtitle_text: plain text from subtitles
         category_code: e.g. "CET4", "TOEFL"
 
     Returns:
         {"quiz_id": str, "cloze_passage": str, "cloze_count": int,
          "reading_passage": str, "reading_questions": list}
     """
-    subtitle_text = _parse_subs(subtitle_path)
 
     graph = _get_graph()
     result = graph.invoke({
