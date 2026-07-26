@@ -21,7 +21,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -187,7 +186,7 @@ private fun AnsweringContent(
     modifier: Modifier = Modifier,
 ) {
     val clozeCount = state.clozeCount.coerceAtLeast(0)
-    var activeBlankIndex by remember { mutableStateOf<Int?>(null) }
+    var activeBlankIndex by remember { mutableStateOf(if (clozeCount > 0) 1 else null) }
 
     val allClozeAnswered = (1..clozeCount).all { i ->
         clozeInputs[i.toString()].orEmpty().isNotBlank()
@@ -198,6 +197,9 @@ private fun AnsweringContent(
     val canSubmit = allClozeAnswered && allReadingAnswered
 
     val usedWords = clozeInputs.values.map { it.lowercase() }.toSet()
+
+    fun nextEmptyBlank(): Int? =
+        (1..clozeCount).firstOrNull { clozeInputs[it.toString()].isNullOrBlank() }
 
     LazyColumn(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -212,28 +214,40 @@ private fun AnsweringContent(
 
         // Word bank chips
         item {
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                state.wordBank.forEach { word ->
-                    val isUsed = word.lowercase() in usedWords
-                    FilterChip(
-                        selected = false,
-                        enabled = !isUsed && activeBlankIndex != null,
-                        onClick = {
-                            activeBlankIndex?.let { idx ->
-                                clozeInputs[idx.toString()] = word
-                                activeBlankIndex = null
-                            }
-                        },
-                        label = { Text(word) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
-                        ),
-                    )
+            if (state.wordBank.isEmpty()) {
+                Text(
+                    text = "⚠ 候选词为空，请重启后端并重新生成题目",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(vertical = 8.dp),
+                )
+            } else {
+                Text(
+                    text = "候选词（点击空位再点击单词填入）：",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    state.wordBank.forEach { word ->
+                        val isUsed = word.lowercase() in usedWords
+                        FilterChip(
+                            selected = false,
+                            enabled = !isUsed,
+                            onClick = {
+                                val idx = activeBlankIndex ?: nextEmptyBlank()
+                                idx?.let {
+                                    clozeInputs[it.toString()] = word
+                                    activeBlankIndex = nextEmptyBlank()
+                                }
+                            },
+                            label = { Text(word) },
+                        )
+                    }
                 }
             }
         }
@@ -257,8 +271,11 @@ private fun AnsweringContent(
                     activeBlankIndex = idx + 1
                 },
                 modifier = Modifier.fillMaxWidth(),
-                border = if (isActive) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                border = BorderStroke(
+                    width = if (isActive) 2.dp else 1.dp,
+                    color = if (isActive) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.outlineVariant,
+                ),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(12.dp),
