@@ -6,3 +6,5 @@ backend/app/chroma_db/
 .claude
 plan_frontend.md
 .gitignore
+
+docs
