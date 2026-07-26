@@ -25,45 +25,43 @@ GENERATE_USER_PROMPT = """请根据以下信息出题：
 请严格按照以下举例的JSON格式输出（不要修改任何json结构,内容需要参考上述信息）：
 
 ```json
-{
-  "cloze": {
+{{
+  "cloze": {{
     "passage": "The world is getting warmer due to gas releasion of 1.____ and 2.____ dioxide. These gases trap heat in the 3.____ and prevent it from escaping into space, a phenomenon known as the 4.____ effect. Human activities such as burning 5.____ fuels, deforestation, and 6.____ farming have significantly increased these emissions. As a result, global 7.____ levels are rising, ice caps are 8.____, and extreme weather events like 9.____ and floods are becoming more frequent. Scientists urge nations to reduce their carbon 10.____ to slow down this process.",
     "blanks": [
-      {"index": 1, "answer": "methone"},
-      {"index": 2, "answer": "carbon",},
-      {"index": 3, "answer": "atmosphere"},
-      {"index": 4, "answer": "greenhouse"},
-      {"index": 5, "answer": "fossil"},
-      {"index": 6, "answer": "livestock"},
-      {"index": 7, "answer": "sea"},
-      {"index": 8, "answer": "melting"},
-      {"index": 9, "answer": "droughts"},
-      {"index": 10, "answer": "footprint"}
+      {{"index": 1, "answer": "methone"}},
+      {{"index": 2, "answer": "carbon"}},
+      {{"index": 3, "answer": "atmosphere"}},
+      {{"index": 4, "answer": "greenhouse"}},
+      {{"index": 5, "answer": "fossil"}},
+      {{"index": 6, "answer": "livestock"}},
+      {{"index": 7, "answer": "sea"}},
+      {{"index": 8, "answer": "melting"}},
+      {{"index": 9, "answer": "droughts"}},
+      {{"index": 10, "answer": "footprint"}}
     ]
-  },
-  "reading_comprehension": {
+  }},
+  "reading_comprehension": {{
     "questions": [
-      {
+      {{
         "index": 1,
         "type": "main_idea",
         "question": "What is the main idea of the passage?",
         "options": {{"A": "The world is getting warmer", "B": "We need to reduce carbon emissions", "C": "We should protect the environment", "D": "The passage discusses the impact of climate change"}},
         "answer": "A"
-      },
-      {
+      }},
+      {{
         "index": 2,
         "type": "detail",
         "question": "What methods are suggested to reduce carbon emissions in the passage?",
         "options": {{"A": "Plant more trees.", "B": "Use renewable energy sources.", "C": "Improve energy efficiency.", "D": "Increase public transportation."}},
         "answer": "A"
-      }
+      }}
     ]
-  }
-}
+  }}
+}}
 ```
 """
-
-# 注意：options必须是对象（{"A":"...","B":"...","C":"...","D":"..."}），不是数组。"""
 
 FEEDBACK_SECTION_TEMPLATE = """【审题反馈（请根据以下意见修改）】
 {feedback}"""
