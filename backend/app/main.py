@@ -192,5 +192,6 @@ def grade_quiz(req: QuizGradeRequest):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(status_code=502, detail=f"Quiz grading error: {e}")
     return result

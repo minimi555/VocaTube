@@ -412,14 +412,14 @@ def grade_quiz(quiz_id: str, cloze_answers: dict[str, str], reading_answers: dic
             "user_answer": user_ans,
             "correct_answer": correct,
             "is_correct": is_correct,
-            "lemma": blank["lemma"],
+            "lemma": blank.get("lemma", correct),
             "explanation": None,
         })
         if not is_correct:
             wrong_items.append({
                 "index": blank["index"],
                 "type": "cloze",
-                "question": f"填空第{blank['index']}题，原句: {blank['sentence']}",
+                "question": f"填空第{blank['index']}题，原句: {blank.get('sentence', blank.get('answer', ''))}",
                 "user_answer": user_ans,
                 "correct_answer": correct,
             })
@@ -483,32 +483,37 @@ def grade_quiz(quiz_id: str, cloze_answers: dict[str, str], reading_answers: dic
 
 def _generate_explanations(subtitle_text: str, wrong_items: list[dict]) -> list[dict]:
     """Call LLM to generate explanations for wrong answers."""
-    llm = _get_grade_llm()
+    fallback = [{"index": item["index"], "type": item["type"], "explanation": "解析生成失败"} for item in wrong_items]
+    try:
+        llm = _get_grade_llm()
 
-    wrong_text = ""
-    for item in wrong_items:
-        wrong_text += (
-            f"- 题号{item['index']}（{item['type']}）：{item['question']}\n"
-            f"  学生答案：{item['user_answer']}，正确答案：{item['correct_answer']}\n"
+        wrong_text = ""
+        for item in wrong_items:
+            wrong_text += (
+                f"- 题号{item['index']}（{item['type']}）：{item['question']}\n"
+                f"  学生答案：{item['user_answer']}，正确答案：{item['correct_answer']}\n"
+            )
+
+        prompt = GRADE_EXPLANATION_PROMPT.format(
+            subtitle_text=subtitle_text[:2000],
+            wrong_questions=wrong_text,
         )
 
-    prompt = GRADE_EXPLANATION_PROMPT.format(
-        subtitle_text=subtitle_text[:2000],
-        wrong_questions=wrong_text,
-    )
+        response = llm.invoke([
+            {"role": "system", "content": GRADE_SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ])
+        content = response.content
+        if not content:
+            return fallback
 
-    response = llm.invoke([
-        {"role": "system", "content": GRADE_SYSTEM_PROMPT},
-        {"role": "user", "content": prompt},
-    ])
-    content = response.content
-
-    try:
         if "```json" in content:
             content = content.split("```json")[1].split("```")[0]
         elif "```" in content:
             content = content.split("```")[1].split("```")[0]
         result = json.loads(content.strip())
+        if isinstance(result, list):
+            return result
         return result.get("explanations", [])
-    except (json.JSONDecodeError, IndexError):
-        return [{"index": item["index"], "type": item["type"], "explanation": "解析生成失败"} for item in wrong_items]
+    except Exception:
+        return fallback
