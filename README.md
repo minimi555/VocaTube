@@ -1,3 +1,4 @@
+![[fig/VocaTube.png]]
 # VocaTube
 
 VocaTube is a vocabulary and video-learning app: a FastAPI backend serves word
@@ -20,10 +21,10 @@ already exist on disk and be referenced by the database.
   DeepSeek.
 - **School search** — a LangChain agent (DeepSeek + Tavily) restricted to the
   official domains of QS top-150 universities, with search history.
-- **Quiz generator** — turns a video's subtitles into a cloze fill-in-the-blank
-  and reading-comprehension quiz targeting a chosen vocabulary category, with
+- **Multi-Agent Based Quiz** — turns a video's subtitles into a **cloze fill-in-the-blank**
+  and **reading-comprehension quiz** targeting a chosen vocabulary category, with
   automatic grading and wrong-answer explanations.
-
+![[fig/Multi-Agent.jpg]]
 ## Architecture
 
 ### Backend (`backend/app/`, FastAPI)
