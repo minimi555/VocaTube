@@ -1,5 +1,8 @@
+<div align="center">
 <img src="fig/VocaTube.png?raw=true" alt="logo" style="width: 30%; max-width: 300px; height: auto;">
-# VocaTube
+</div>
+
+## VocaTube
 
 VocaTube is a vocabulary and video-learning app: a FastAPI backend serves word
 lookups, downloaded YouTube videos with bilingual (Chinese/English) subtitles,
