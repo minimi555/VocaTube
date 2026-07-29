@@ -1,4 +1,4 @@
-![[fig/VocaTube.png]]
+![logo](fig/VocaTube.png?raw=true)
 # VocaTube
 
 VocaTube is a vocabulary and video-learning app: a FastAPI backend serves word
@@ -24,7 +24,7 @@ already exist on disk and be referenced by the database.
 - **Multi-Agent Based Quiz** — turns a video's subtitles into a **cloze fill-in-the-blank**
   and **reading-comprehension quiz** targeting a chosen vocabulary category, with
   automatic grading and wrong-answer explanations.
-![[fig/Multi-Agent.jpg]]
+![Structure of Multi-Agent](fig/Multi-Agent.jpg)
 ## Architecture
 
 ### Backend (`backend/app/`, FastAPI)
