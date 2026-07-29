@@ -1,4 +1,4 @@
-<img src="fig/VocaTube.png?raw=true" alt="logo" style="width: 80%; max-width: 800px; height: auto;">
+<img src="fig/VocaTube.png?raw=true" alt="logo" style="width: 30%; max-width: 300px; height: auto;">
 # VocaTube
 
 VocaTube is a vocabulary and video-learning app: a FastAPI backend serves word
