@@ -27,7 +27,7 @@ already exist on disk and be referenced by the database.
 - **Multi-Agent Based Quiz** — turns a video's subtitles into a **cloze fill-in-the-blank**
   and **reading-comprehension quiz** targeting a chosen vocabulary category, with
   automatic grading and wrong-answer explanations.
-![Structure of Multi-Agent](fig/Multi-Agent.jpg)
+![Structure of Multi-Agent](fig/Multi-Agent.png)
 ## Architecture
 
 ### Backend (`backend/app/`, FastAPI)
