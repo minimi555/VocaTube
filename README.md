@@ -122,15 +122,6 @@ cd backend/app
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-You can also query the RAG assistant or the school-search agent directly
-from the command line, bypassing the API:
-
-```bash
-cd backend/app
-python RAG.py ask "问题..."      # or `python RAG.py` for an interactive REPL
-python school_searcher.py
-```
-
 ### Frontend
 
 Open `frontend/` in Android Studio, or build from the command line:
@@ -146,11 +137,3 @@ When testing against a locally-running backend over USB, forward the port
 ```bash
 adb reverse tcp:8000 tcp:8000
 ```
-
-## Notes
-
-- There is no test suite or lint config in this repo.
-- `plan_frontend.md` documents the intended design for the VideoLearn quiz UI
-  integration.
-- Generated quizzes are held in an in-memory store with a 1-hour TTL and do
-  not survive server restarts.
