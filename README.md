@@ -28,6 +28,11 @@ already exist on disk and be referenced by the database.
   and **reading-comprehension quiz** targeting a chosen vocabulary category, with
   automatic grading and wrong-answer explanations.
 ![Structure of Multi-Agent](fig/Multi-Agent.png)
+
+## Demo Video
+
+[![video_App](http://i1.hdslb.com/bfs/archive/99abd2a743b128a7a8b2dc0f9cc5d4f41e29575b.jpg)](https://www.bilibili.com/video/BV1M6Mk6sEdE)
+
 ## Architecture
 
 ### Backend (`backend/app/`, FastAPI)
